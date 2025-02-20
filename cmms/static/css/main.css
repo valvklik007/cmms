@@ -4,6 +4,7 @@
 	--color-background-main: #709bf9;
 	--color-background-box_info: #e0e8fe;
 	--color-text-for-background-box_info: #454950;
+	--color-teg-a-no-cklik: gray;
 
 }
 html{
@@ -320,4 +321,9 @@ tbody tr:hover{
 	border-radius: 13px;
 	box-shadow: 0.8em 0.8em 0.5em #8b8181;
 
+}
+
+.no-cklik{
+	color: var(--color-teg-a-no-cklik);
+	pointer-events: none;
 }
