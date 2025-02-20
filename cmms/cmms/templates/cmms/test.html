@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<body>
+	<form onsubmit="return false" id="new_add_mess" action="/test/post/" method="post">
+		<label for="">Тест</label>
+		<input type="text" id="name" name="name1" required>
+		<input type="date" name="calendar">
+    <br><br><br>
+		<input type="submit" value="ок" class="default" name="_save">
+		<button type="submit" onclick="formSubmit('new_add_mess')">Submit</button>
+		<!-- <a class="but-new-table" style="cursor: pointer;" onclick="formSubmit('#new_add_mess')">Отправить</a> -->
+		<a class="but-new-table" style="cursor: pointer;" onclick="document.getElementById('new_add_mess').submit();">Отправить</a>
+	</form>
+
+	<script>
+		function formSubmit(formId) {
+			formElement = document.getElementById(formId);
+			
+			var url = "/post/url/here";
+			var request = new XMLHttpRequest();
+			request.open('POST', url, true);
+			request.onload = function() { // request successful
+			// we can use server response to our request now
+				console.log(request.responseText);
+			};
+
+			request.onerror = function() {
+				// request failed
+			};
+
+			request.send(new FormData(formElement)); // create FormData from form that triggered event
+			// event.preventDefault();
+		}
+
+		// and you can attach form submit event like this for example
+		function attachFormSubmitEvent(formId){			
+			var formElement = document.getElementById("new_add_mess");
+			var formData = new FormData(formElement);
+			console.log(formData.getAll('calendar'));
+			
+
+
+
+			formId = '#new_add_mess'
+			// document.getElementById(formId).addEventListener("submit", formSubmit);
+			document.querySelector(formId).addEventListener('submit', (e) => {
+			e.preventDefault()
+			const data = Object.fromEntries(new FormData(e.target).entries());
+			console.log(data)
+		});
+		}
+	</script>
+	
+</body>
+</html>

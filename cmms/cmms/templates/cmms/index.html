@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>CMMS</h1>
+<div class="headers">
+    <!-- <span>Главная страница</span> -->
+    <!-- <span>Расписание: <input type="date" name="calendar"></span> -->
+</div>
+<div class="main_box_info">
+    <div class="titel_box_info">
+        <span>График обслуживания</span>
+    </div>
+    <div class="schedule">
+        <span>Расписание: <input type="date" name="calendar"></span>
+    </div>
+
+    <div class="buttom_menu buttom_menu_top">
+        <button>Экспорт</button>
+    </div>
+    <div class="table_box">
+        <table>
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Название</th>
+                    <th>Производитель</th>
+                    <th>Модель</th>
+                    <th>Статус</th>
+                    <th>Состояние</th>
+                    <th>Место экспулатации</th>
+                    <th>Дата предстоящего ТО</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row"><a href="#">1</a></th>
+                    <td>Название</td>
+                    <td>Sysm</td>
+                    <td>g5</td>
+                    <td>Работает</td>
+                    <td>Исправин</td>
+                    <td>З.И Ленина</td>
+                    <td>25.02.2024</td>
+                </tr>
+
+                <tr>
+                    <th scope="row"><a href="#">1</a></th>
+                    <td>Название</td>
+                    <td>Sysm</td>
+                    <td>g5</td>
+                    <td>Работает</td>
+                    <td>Исправин</td>
+                    <td>З.И Ленина</td>
+                    <td>25.02.2024</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="main_box_info">
+    <div class="titel_box_info">
+        <span>Карточка оборудования</span>
+    </div>
+    <div class="buttom_menu buttom_menu_top">
+        <button onclick="location.href='{{ url_for('index.add_item') }}'">Добавить</button>
+    </div>
+
+    <div class="table_box">
+        <table>
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Название</th>
+                    <th>Производитель</th>
+                    <th>Модель</th>
+                    <th>Статус</th>
+                    <th>Состояние</th>
+                    <th>Место экспулатации</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row"><a href="#">1</a></th>
+                    <td>Название</td>
+                    <td>Sysm</td>
+                    <td>g5</td>
+                    <td>Работает</td>
+                    <td>Исправин</td>
+                    <td>З.И Ленина</td>
+                </tr>
+
+                <tr>
+                    <th scope="row"><a href="#">1</a></th>
+                    <td>Название</td>
+                    <td>Sysm</td>
+                    <td>g5</td>
+                    <td>Работает</td>
+                    <td>Исправин</td>
+                    <td>З.И Ленина</td>
+                </tr>
+
+
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+{% endblock %}

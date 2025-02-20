@@ -1,0 +1,75 @@
+апвап{% extends 'base.html' %}
+{% block content %}
+        <div class="window_flag_close">
+                <span>Добавления варианта</span>
+                <a href="#" onclick="handleClose()" class="flag_close"></a>
+            </div>
+                {% if parent_records != none %}
+                    <form onsubmit="return false" id="parent" action="" method="post">
+                        {% include "/cmms/include/add_manufactureritme.html" %}
+                    </form>
+                {% endif %}
+            <div class="main_box_info">
+                <div class="titel_box_info">
+                    <span>Добавления</span>
+                </div>
+                    <div class="box_body_main box_info_body_full_screen_flex">
+                        <div class="box_info box_info_body_full_screen_flex">
+                            <form onsubmit="return false" id="add_option" name="_save" action="" method="post" class="box_info_body box_info_body_full_screen_flex">
+{#                            <div class="box_info_body box_info_body_full_screen_flex">#}
+                                <span>Имя варианта</span>
+                                <input class="input_text" name="option" type="text" required>
+                                <button type="submit" onclick="changeFormHandler('add_option', 'add')" id="add" name="action" value="add" class="add"></button>
+{#                            </div>#}
+                            </form>
+
+                        <form onsubmit="return false" id="delete" action="" method="post" class="box_info_body box_info_body_full_screen_flex">
+                            <span>Тип расписания</span>
+                            <select id="{{ request.path.split('/')[-2] }}" name="allocated_name" multiple style="height: 200px;" required>
+                                {% include "/cmms/include/add_option_value.html" %}
+                            </select>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="buttom_menu" style="display: flex; justify-content: flex-end;">
+                <button onclick="handleClose()">Закрыть</button>
+                <button type="submit" onclick="changeFormHandler('delete', 'but_delete')" id="but_delete" name="action" value="delete">Удалить</button>
+            </div>
+    <script src="{{ url_for('static', filename='js/form.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dialog_open_window.js') }}"></script>
+    <script>
+        function handleClose() {
+            try {
+                parent.closeDialog();
+            } catch (error) {
+                window.close();
+            }
+        }
+    </script>
+    <script>
+        if (document.getElementById('manufactureritme')){
+            document.getElementById('manufactureritme').addEventListener('change', function (event){
+            if (window.opener) { // Проверяем, есть ли родительское окно
+                window.opener.postMessage({ key: this.value }, "*"); // Отправляем данные
+            }
+            })
+        }
+    </script>
+    {% if parent_records != none %}
+        <script>
+            function url_id(id){
+                url = location.protocol + '//' + location.host + location.pathname + '?id='+ id;
+                otherWindow = window.open(url,"_self");
+            }
+            document.getElementById('manufactureritme').addEventListener('change', function(event){url_id(this.value)});
+
+            window.addEventListener("message", (event) => {
+                document.getElementById('manufactureritme').value = event.data.key
+                url_id(event.data.key);
+            });
+
+        </script>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,14 @@
+<div class="box_info_body" style="width: 40%;">
+    <span>Производитель</span>
+    <select id="manufactureritme" name="parent">
+        {% for m in parent_records %}
+            {% if m.id|int == id_parent|int %}
+                <option value="{{ m.id }}" required selected="selected">{{ m.name }}</option>
+                {% else %}
+                     <option value="{{ m.id }}" required>{{ m.name }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <button class="add" onclick="open_windows('/add_option/manufactureritme/')"></button>
+</div>
+
