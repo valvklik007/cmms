@@ -1,6 +1,8 @@
 from flask import request, render_template, url_for, session
 import datetime, time
 
+from mypy.nodes import set_flags
+from sqlalchemy.dialects.postgresql import psycopg_async
 from sqlalchemy.inspection import inspect
 
 from app import db, turbo
@@ -15,31 +17,107 @@ def request_db(data):
         if data.lower() == m[0].lower():
             return getattr(models, m[0])
 
+
+class BaseRepository:
+    def __init__(self, model):
+        self._db = db.session
+        self._model = model
+
+    def add(self, **kwargs):
+        item = self._model(**kwargs)
+        self._db.add(item)
+        self._db.commit()
+
+        return item
+
+    def delete(self, id_item):
+        item = self._model.query.filter_by(id = id_item).first()
+        if item:
+            self._db.delete(item)
+            self._db.commit()
+            return True
+
+    def get_all(self):
+        return self._db.query(self._model).all()
+
+    def get_filter(self, **kwargs):
+        return self._db.query(self._model).filter_by(**kwargs).all()
+
+    def property_parent(self, name):
+        relationship = getattr(self._model, name)
+        # Имя родителя
+        parent_table_name = relationship.property.mapper.class_.__table__.name
+        return parent_table_name
+
+
+
+class ManufacturerItme(BaseRepository):
+    def __init__(self):
+        super().__init__(models.ManufacturerItme)
+
+    def add_parent(self, name, fk):
+        self.add(name=name, fk_ModelItme=fk)
+
+
+class ModelItme(BaseRepository):
+    def __init__(self):
+        super().__init__(models.ModelItme)
+
+
+class StatusItme(BaseRepository):
+    def __init__(self):
+        super().__init__(models.StatusItme)
+
+
+class ConditionItme(BaseRepository):
+    def __init__(self):
+        super().__init__(models.ConditionItme)
+
+
+class TypeEquipment(BaseRepository):
+    def __init__(self):
+        super().__init__(models.TypeEquipment)
+
+
+class PlaceOperation(BaseRepository):
+    def __init__(self):
+        super().__init__(models.PlaceOperation)
+
+
+name_table ={
+    'manufactureritme' : ManufacturerItme(),
+    'modelitme' : ModelItme(),
+    'statusitme' : StatusItme(),
+    'conditionitme': ConditionItme(),
+    'typeequipment' : TypeEquipment(),
+    'placeoperation' : PlaceOperation(),
+}
+
+
 """Главная страница"""
 def index():
     return render_template('/cmms/index.html')
 
 
-def add_item():
-    tem_context =  dict(
-        name_table ={
-            'ManufacturerItme' : 'manufactureritme',
-            'ModelItme' : 'modelitme',
-            'StatusItme' : 'statusitme',
-            'ConditionItme': 'conditionitme',
-            'TypeEquipment' : 'typeequipment',
-            'PlaceOperation' : 'placeoperation',
-         },
-        manufactureritme = models.ManufacturerItme.query.all(),
-        modelitme = models.ModelItme.query.all(),
-        statusitme = models.StatusItme.query.all(),
-        conditionitme=models.ConditionItme.query.all(),
-        typeequipment = models.TypeEquipment.query.all(),
-        placeoperation = models.PlaceOperation.query.all(),
-        data_time = datetime.datetime.now().strftime("%Y-%m-%d"),
-    )
+def add_and_delete_item(req):
+    pass
 
-    return render_template('/cmms/item.html', **tem_context)
+def add_item():
+    if request.method == 'GET':
+        tem_context =  dict(
+            manufactureritme = ManufacturerItme().get_all(),
+            modelitme = ModelItme().get_all(),
+            statusitme = StatusItme().get_all(),
+            conditionitme= ConditionItme().get_all(),
+            typeequipment = TypeEquipment().get_all(),
+            placeoperation = PlaceOperation().get_all(),
+            data_time = datetime.datetime.now().strftime("%Y-%m-%d"),
+        )
+        return render_template('/cmms/item.html', **tem_context)
+    if request.method == 'POST':
+        # manufactureritme
+        pass
+
 
 def item(id):
 
@@ -67,52 +145,57 @@ def get_parent_table(model):
     return None, None
 
 
-def push_update(template, **data_dict):
+def push_update(template, **kwargs):
     turbo.push(
         turbo.update(
             render_template(
                 template,
-                **data_dict),
-            target=data_dict['target'],),
+                **kwargs),
+            target=kwargs['target'],),
+    )
+
+def push_append(template, **kwargs):
+    turbo.push(
+        turbo.append(
+            render_template(
+                template,
+                **kwargs),
+            target=kwargs['target'],),
     )
 
 def add_delete_option(data):
-    # try:
-    data_models = request_db(data)
-    parent_model, name_fk = get_parent_table(data_models)
-    parent_records = parent_model.query.all() if parent_model else None
-
+    parent_records = None
     if request.method == "POST":
-        data_models_action = data_models()
         if request.form['action'] == 'add':
-            if parent_records:
-                setattr(data_models_action, name_fk, request.form['parent'])
+            if 'modelitme' in data:
+                name_table[data].add(name = request.form['option'], fk_ModelItme = request.form['parent'])
+            else:
+                name_table[data].add(name = request.form['option'])
 
-            data_models_action.name = request.form['option']
-            db.session.add(data_models_action)
-            db.session.flush()
-            db.session.commit()
+            data_dict = dict(
+                option_values= name_table[data].get_filter(name = request.form['option']),
+                target=data,
+            )
+
+            if turbo.can_stream():
+                push_append(template='/cmms/include/add_option_value.html', **data_dict),
+                return []
+
         elif request.form['action'] == 'delete':
             for m in request.form.getlist('allocated_name'):
-                db.session.delete(data_models_action.query.filter_by(id = m).one())
-                db.session.commit()
-    id_parent =  request.values.get('id')
-    if parent_records:
-        if id_parent is not None:
-            option_values = data_models.query.filter(getattr(data_models, name_fk) == id_parent).all()
-        else:
-            try:
-                option_values = data_models.query.filter(getattr(data_models, name_fk) == request.form['parent']).all()
-            except:
-                option_values = data_models.query.all()
+                name_table[data].delete(m)
+
+    if request.values.get('id') is not None:
+        if 'modelitme' in data:
+            option_values = name_table[data].get_filter(fk_ModelItme = request.values.get('id'))
+            parent_records = name_table[name_table[data].property_parent('parent')].get_all()
     else:
-        option_values = data_models.query.all()
+        option_values = name_table[data].get_all()
 
     data_dict = dict(
-        # option_values=data_models.query.all(),
         option_values=option_values,
         parent_records=parent_records,
-        id_parent = id_parent,
+        id_parent = request.values.get('id'),
         target=data,
     )
 
@@ -121,9 +204,4 @@ def add_delete_option(data):
         return []
     else:
         return render_template('/cmms/add_option.html', **data_dict)
-
-
-    # except Exception as err:
-    #     print(err)
-    #     return "404", 400
 

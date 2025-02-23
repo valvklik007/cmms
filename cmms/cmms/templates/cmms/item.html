@@ -4,7 +4,6 @@
         <span>Карточка</span>
         <a href="#" class="flag_close"></a>
     </div>
-
     <div class="menu_box">
         <div class="left_menu_item">
             <a href="" class="menu_item activate_menu_item">Основное</a>
@@ -15,122 +14,122 @@
             <a href="" class="menu_item">Коментарии</a>
         </div>
     </div>
+    <form onsubmit="return false" id="add" action="" method="post">
+        <div class="main_box_info">
+            <div class="titel_box_info">
+                <span>Идентификационные данные</span>
+            </div>
+            <div class="box_body_main">
+                <div class="box_info">
+                    <div class="box_info_body">
+                        <span>Название</span>
+                        <input type="text" name="name">
+                    </div>
+                    <div class="box_info_body">
+                        <span>Производитель</span>
+                        <select id="manufactureritme" name="manufactureritme" required>
+                            {% for foo in manufactureritme %}
+                                <option value="{{ foo.id }}">{{ foo.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='manufactureritme') }}')"></button>
+                    </div>
+                    <div class="box_info_body">
+                        <span>Модель</span>
+                        <select id="modelitme" name="modelitme" required>
+                            {% for foo in modelitme %}
+                                 <option value="{{ foo.id }}">{{ foo.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='modelitme') }}?id=' + document.getElementById('manufactureritme').value)"></button>
+                    </div>
+                </div>
+                <div class="box_info_body" style="display: flex; align-items: center;	width: 64%; margin-left: 20px;">
+                    <span>Описание</span>
+                    <textarea style="width: 90%" name="mess" id="" cols="30" rows="9"></textarea>
+                </div>
+            </div>
+        </div>
 
-    <div class="main_box_info">
-        <div class="titel_box_info">
-            <span>Идентификационные данные</span>
-        </div>
-        <div class="box_body_main">
-            <div class="box_info">
-                <div class="box_info_body">
-                    <span>Название</span>
-                    <input type="text">
-                </div>
-                <div class="box_info_body">
-                    <span>Производитель</span>
-                    <select id="{{ name_table['ManufacturerItme'] }}" required>
-                        {% for foo in manufactureritme %}
-                        	<option value="{{ foo.id }}">{{ foo.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data=name_table['ManufacturerItme']) }}')"></button>
-                </div>
-                <div class="box_info_body">
-                    <span>Модель</span>
-                    <select id="{{ name_table['ModelItme'] }}" required>
-                        {% for foo in modelitme %}
-                        	 <option value="{{ foo.id }}">{{ foo.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data=name_table['ModelItme']) }}?id=' + document.getElementById('manufactureritme').value)"></button>
+        <div class="main_box_info">
+            <div class="titel_box_info">
+                <span>Состояние</span>
+            </div>
+            <div class="box_body_main">
+                <div class="box_info">
+                    <div class="box_info_body">
+                        <span>Статус</span>
+                        <select id="statusitme" name="statusitme" required>
+                            {% for i in statusitme %}
+                                <option value="{{ i.id }}">{{ i.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='statusitme') }}')"></button>
+                    </div>
+                    <div class="box_info_body">
+                        <span>Состояние</span>
+                        <select id="conditionitme" name="conditionitme" required>
+                            {% for i in conditionitme %}
+                                <option value="{{ i.id }}">{{ i.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='conditionitme') }}')"></button>
+                    </div>
                 </div>
             </div>
-            <div class="box_info_body" style="display: flex; align-items: center;	width: 64%; margin-left: 20px;">
-                <span>Описание</span>
-                <textarea style="width: 90%" name="mess" id="" cols="30" rows="9"></textarea>
-            </div>
         </div>
-    </div>
 
-    <div class="main_box_info">
-        <div class="titel_box_info">
-            <span>Состояние</span>
-        </div>
-        <div class="box_body_main">
-            <div class="box_info">
-                <div class="box_info_body">
-                    <span>Статус</span>
-                    <select id="{{ name_table['StatusItme'] }}" required>
-                        {% for i in statusitme %}
-                        	<option value="{{ i.id }}">{{ i.name}}</option>
-                        {% endfor %}
-                    </select>
-                    <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data=name_table['StatusItme']) }}')"></button>
+        <div class="main_box_info">
+            <div class="titel_box_info">
+                <span>Дополнительная информация</span>
+            </div>
+            <div class="box_body_main box_in_row" >
+                <div class="box_info box_info_in_line">
+                    <div class="box_info_body">
+                        <span>Тип оборудования</span>
+                        <select id="typeequipment" name="typeequipment" required>
+                            {% for i in typeequipment %}
+                                <option value="{{ i.id }}">{{ i.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='typeequipment') }}')"></button>
+                    </div>
+                    <div class="box_info_body">
+                        <span>Место эксплуатации</span>
+                        <select id="placeoperation" name="placeoperation" required>
+                            {% for i in placeoperation %}
+                                <option value="{{ i.id }}">{{ i.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='placeoperation') }}')"></button>
+                    </div>
+                    <div class="box_info_body">
+                        <span>Вес</span>
+                        <input type="number" name="weight" required>
+                    </div>
+                    <div class="box_info_body">
+                        <span>Стоимость</span>
+                        <input type="number" name="price" required>
+                    </div>
                 </div>
                 <div class="box_info_body">
-                    <span>Состояние</span>
-                    <select id="{{ name_table['ConditionItme'] }}" required>
-                        {% for i in conditionitme %}
-                        	<option value="{{ i.id }}">{{ i.name}}</option>
-                        {% endfor %}
-                    </select>
-                    <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data=name_table['ConditionItme']) }}')"></button>
+                    <span>Дата ввода в эксплуатацию</span>
+                    <input type="date" name="exploitation" value="{{ data_time }}" required>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="main_box_info">
-        <div class="titel_box_info">
-            <span>Дополнительная информация</span>
-        </div>
-        <div class="box_body_main box_in_row" >
-            <div class="box_info box_info_in_line">
-                <div class="box_info_body">
-                    <span>Тип оборудования</span>
-                    <select id="{{ name_table['TypeEquipment'] }}" required>
-                        {% for i in typeequipment %}
-                        	<option value="{{ i.id }}">{{ i.name}}</option>
-                        {% endfor %}
-                    </select>
-                    <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data=name_table['TypeEquipment']) }}')"></button>
-                </div>
-                <div class="box_info_body">
-                    <span>Место эксплуатации</span>
-                    <select id="{{ name_table['PlaceOperation'] }}" required>
-                        {% for i in placeoperation %}
-                        	<option value="{{ i.id }}">{{ i.name}}</option>
-                        {% endfor %}
-                    </select>
-                    <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data=name_table['PlaceOperation']) }}')"></button>
-                </div>
-                <div class="box_info_body">
-                    <span>Вес</span>
-                    <input type="number" required>
-                </div>
-                <div class="box_info_body">
-                    <span>Стоимость</span>
-                    <input type="number" required>
-                </div>
-            </div>
-            <div class="box_info_body">
-                <span>Дата ввода в эксплуатацию</span>
-                <input type="date" name="calendar" value="{{ data_time }}" required>
-            </div>
-        </div>
-    </div>
-
+    </form>
     <div class="buttom_menu" style="display: flex; justify-content: flex-end;">
         <button>OK</button>
-        <button>Сохронить</button>
-        <button onclick="location.href='{{ url_for('index.index') }}'">Отмента</button>
+        <button type="submit" onclick="changeFormHandler('add', 'but_add')" id="but_add" name="action" value="add">Сохранить</button>
+        <button onclick="location.href='{{ url_for('index.index') }}'">Отмена</button>
     </div>
 
     <dialog id="dialog_open_option" class="dialog_window">
         <iframe id="dialogIframe" width="900px" height="510px" style="border: none;"></iframe>
     </dialog>
 
-
+    <script src="{{ url_for('static', filename='js/form.js') }}"></script>
     <script src="{{ url_for('static', filename='js/dialog_open_window.js') }}"></script>
 
 {#    <script>#}

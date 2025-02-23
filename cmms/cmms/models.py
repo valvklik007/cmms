@@ -25,6 +25,8 @@ class ModelItme(db.Model):
     name = db.Column(db.String(50))
     fk_ModelItme = db.Column(db.Integer, db.ForeignKey('manufactureritme.id'), nullable=False)
 
+
+
     def __repr__(self):
         return f'<Name:{self.name}>'
 
@@ -73,7 +75,6 @@ class Item(db.Model):
     price = db.Column(db.Float, default=None)
     exploitation = db.Column(db.Date, default=datetime.today)
     fk_ManufacturerItme = db.Column(db.Integer, db.ForeignKey('manufactureritme.id'), nullable=False)
-    # fk_ModelItme = db.Column(db.Integer, db.ForeignKey('modelitme.id'))
     fk_StatusItme = db.Column(db.Integer, db.ForeignKey('statusitme.id'), nullable=False)
     fk_ConditionItme = db.Column(db.Integer, db.ForeignKey('conditionitme.id'), nullable=False)
     fk_TypeEquipment = db.Column(db.Integer, db.ForeignKey('typeequipment.id'), nullable=False)

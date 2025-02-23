@@ -4,6 +4,9 @@
                 <span>Добавления варианта</span>
                 <a href="#" onclick="handleClose()" class="flag_close"></a>
             </div>
+{#                {% for m in option_values|unique(attribute='parent.name') %}#}
+{#                    <p>{{ m.parent.name }}</p>#}
+{#                {% endfor %}#}
                 {% if parent_records != none %}
                     <form onsubmit="return false" id="parent" action="" method="post">
                         {% include "/cmms/include/add_manufactureritme.html" %}
