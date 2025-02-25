@@ -2,20 +2,61 @@ function openDialog(url) {
 	let dialog = document.getElementById('dialog_open_option');
 	let iframe = document.getElementById('dialogIframe');	
 	iframe.src = url;  // Замените на нужный URL
+	if (document.getElementById("dialog_open_option")){
+		lastText = document.getElementById("modelitme").innerText;
+	}
+	
 	dialog.showModal();
+	
 }
 
-function update_table() {
+function update_table() {	
 	url = `/add_option/modelitme/?id=${document.getElementById("manufactureritme").value}`;
 	let response = fetch(url)
 		.then(response => response.text())
 		.then(html => {
 			if (document.getElementById("modelitme")){
-				lastText = document.getElementById("modelitme").innerText;
-				console.log('123123123')
+				if (document.getElementById('dialog_open_option')){
+					options_value = document.getElementById("modelitme");
+					// lastText.innerText;
+					setTimeout(()=>{						
+						for(let option of options_value.options){
+							if(option.value == start_select){
+								option.selected = true;				
+								// start_select = document.getElementById('modelitme').value;
+								break;
+							}
+						}}, 500)
+				}
 			}
 		});
 }
+
+// const socket = new WebSocket('ws://127.0.0.1:5000/turbo-stream');
+
+// socket.addEventListener('message', function (event) {
+// 	console.log('----'+start_select+'-----');
+// 	console.log('Получено сообщение от сервера:', event.data);
+// 	lastText = document.getElementById("modelitme");
+// 	setTimeout(()=>{
+// 		for(let option of lastText.options){
+// 			if(option.value == start_select){
+// 				option.selected = true;	
+// 				start_select = document.getElementById('modelitme').value;
+// 				break;
+// 			}
+// 		}}, 100)
+// });
+
+
+if (document.getElementById('modelitme')){
+	start_select = document.getElementById('modelitme').value;
+	// lastText = document.getElementById("modelitme").innerText;
+	document.getElementById('modelitme').addEventListener("change", async function(){
+		start_select = document.getElementById('modelitme').value;
+	})
+}
+
 
 if (document.getElementById('modelitme')){
 	update_table();
@@ -28,9 +69,10 @@ function closeDialog() {
 
 	if (document.getElementById("modelitme")){
 		selectElement_new = document.getElementById("modelitme").innerText;
-		if (selectElement_new !== lastText) {
-			update_table();
-	 }
+		update_table();
+	// 	if (selectElement_new !== lastText) {
+	// 		update_table();
+	//  }
 	 
 	}
 	
@@ -38,14 +80,16 @@ function closeDialog() {
 
 
 window.addEventListener("message", (event) => {
+	start_select = document.getElementById('modelitme').value;
 	if (event.data === "closeDialog") {
-			closeDialog();
+			closeDialog(start_select);
 	}
 }, false);
 
 
 function open_windows(data){
-	window.open(
+	start_select = document.getElementById('modelitme').value;
+	newWindow = window.open(
 			data,
 			'popUpWindow','height=510,width=900,left=10,top=10,scrollbars=yes,menubar=no')
 	return false;
@@ -59,10 +103,10 @@ if (document.getElementById('manufactureritme')){
 		if (req.ok){
 			if(document.getElementById("modelitme")){
 				setTimeout(()=>{
-					lastText = document.getElementById("modelitme").innerText;
+					// lastText = document.getElementById("modelitme").innerText;
 					// manufactureritme
 					document.getElementById('manufactureritme').value = manufacturer;
-				}, 100);
+				}, 500);
 			}
 		}
 	});

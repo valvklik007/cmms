@@ -51,6 +51,7 @@ a{
 	margin-bottom: 30px;
 }
 
+
 .buttom_menu button{
 	background-color: var(--color-hover-but_and_table);
 	color: var(--color-text-but_and_table);
@@ -72,6 +73,8 @@ a{
 .buttom_menu button:active{
 	background-color: #878ae7;
 }
+
+
 
 .table_box{
 	height: 500px;
@@ -326,4 +329,16 @@ tbody tr:hover{
 .no-cklik{
 	color: var(--color-teg-a-no-cklik);
 	pointer-events: none;
+}
+
+.delete_but{
+	background-color: red !important;
+}
+
+.delete_but:hover{
+	background: #9b0000 !important;
+}
+
+.delete_but:active{
+	background: #cb5050 !important;
 }

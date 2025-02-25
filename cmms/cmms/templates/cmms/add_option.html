@@ -7,7 +7,7 @@
 {#                {% for m in option_values|unique(attribute='parent.name') %}#}
 {#                    <p>{{ m.parent.name }}</p>#}
 {#                {% endfor %}#}
-                {% if parent_records != none %}
+                {% if parent_records %}
                     <form onsubmit="return false" id="parent" action="" method="post">
                         {% include "/cmms/include/add_manufactureritme.html" %}
                     </form>
@@ -21,7 +21,7 @@
                             <form onsubmit="return false" id="add_option" name="_save" action="" method="post" class="box_info_body box_info_body_full_screen_flex">
 {#                            <div class="box_info_body box_info_body_full_screen_flex">#}
                                 <span>Имя варианта</span>
-                                <input class="input_text" name="option" type="text" required>
+                                <input class="input_text" name="name" type="text" required>
                                 <button type="submit" onclick="changeFormHandler('add_option', 'add')" id="add" name="action" value="add" class="add"></button>
 {#                            </div>#}
                             </form>

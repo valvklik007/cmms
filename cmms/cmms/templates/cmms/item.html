@@ -10,11 +10,20 @@
             <a href="" class="menu_item">Обслуживание</a>
         </div>
         <div class="right_menu_item">
-            <a href="" class="menu_item">Документы</a>
-            <a href="" class="menu_item">Коментарии</a>
+            {% if item %}
+                    <a href="" class="menu_item">Документы</a>
+                    <a href="" class="menu_item">Коментарии</a>
+                {% else %}
+                    <a href="" class="menu_item no-cklik">Документы</a>
+                    <a href="" class="menu_item no-cklik">Коментарии</a>
+            {% endif %}
         </div>
     </div>
-    <form onsubmit="return false" id="add" action="" method="post">
+    {% if item %}
+        <form id="add" action="" method="PUT" required>
+        {% else %}
+             <form id="add" action="" method="post" required>
+     {% endif %}
         <div class="main_box_info">
             <div class="titel_box_info">
                 <span>Идентификационные данные</span>
@@ -23,30 +32,55 @@
                 <div class="box_info">
                     <div class="box_info_body">
                         <span>Название</span>
-                        <input type="text" name="name">
+                        {% if item %}
+                            <input type="text" name="name" minlength="2" value="{{ item.name }}" required>
+                            {% else %}
+                                <input type="text" name="name" minlength="2" value="" required>
+                        {% endif %}
                     </div>
                     <div class="box_info_body">
                         <span>Производитель</span>
-                        <select id="manufactureritme" name="manufactureritme" required>
-                            {% for foo in manufactureritme %}
-                                <option value="{{ foo.id }}">{{ foo.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='manufactureritme') }}')"></button>
+                            {% set id_p = 'manufactureritme' %}
+                            {% set id_index = manufactureritme %}
+                            {% if item %}
+                                {% if item.model_item is not none %}
+                                    {% set item_position = item.model_item.parent %}
+                                    {% else %}
+                                        {% set item_position = item.model_item %}
+                                {% endif %}
+                            {% endif %}
+                            {% include "/cmms/include/parameters_select.html" %}
+{#                        <select id="manufactureritme" required>#}
+{#                            {% for foo in manufactureritme %}#}
+{#                                <option value="{{ foo.id }}">{{ foo.name }}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+                        <button type="button" class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='manufactureritme') }}')"></button>
                     </div>
                     <div class="box_info_body">
                         <span>Модель</span>
-                        <select id="modelitme" name="modelitme" required>
-                            {% for foo in modelitme %}
-                                 <option value="{{ foo.id }}">{{ foo.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='modelitme') }}?id=' + document.getElementById('manufactureritme').value)"></button>
+                            {% set id_p = 'modelitme' %}
+                            {% set id_index = modelitme %}
+                            {% set id_name  = "fk_ModelItme" %}
+                            {% if item %}
+                                {% set item_position = item.model_item %}
+                            {% endif %}
+                            {% include "/cmms/include/parameters_select.html" %}
+{#                        <select id="modelitme" name="fk_ModelItme" required>#}
+{#                            {% for foo in modelitme %}#}
+{#                                 <option value="{{ foo.id }}">{{ foo.name }}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+                        <button type="button" class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='modelitme') }}?id=' + document.getElementById('manufactureritme').value)"></button>
                     </div>
                 </div>
                 <div class="box_info_body" style="display: flex; align-items: center;	width: 64%; margin-left: 20px;">
                     <span>Описание</span>
-                    <textarea style="width: 90%" name="mess" id="" cols="30" rows="9"></textarea>
+                    {% if item %}
+                        <textarea style="width: 90%" name="description" id="" cols="30" rows="9">{{ item.description }}</textarea>
+                        {% else %}
+                            <textarea style="width: 90%" name="description" id="" cols="30" rows="9"></textarea>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -59,21 +93,35 @@
                 <div class="box_info">
                     <div class="box_info_body">
                         <span>Статус</span>
-                        <select id="statusitme" name="statusitme" required>
-                            {% for i in statusitme %}
-                                <option value="{{ i.id }}">{{ i.name}}</option>
-                            {% endfor %}
-                        </select>
-                        <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='statusitme') }}')"></button>
+                        {% set id_p = 'statusitme' %}
+                        {% set id_index = statusitme %}
+                        {% set id_name  = "fk_StatusItme" %}
+                        {% if item %}
+                            {% set item_position = item.model_StatusItme %}
+                        {% endif %}
+                        {% include "/cmms/include/parameters_select.html" %}
+{#                        <select id="statusitme" name="fk_StatusItme" required>#}
+{#                            {% for i in statusitme %}#}
+{#                                <option value="{{ i.id }}">{{ i.name}}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+                        <button type="button" class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='statusitme') }}')"></button>
                     </div>
                     <div class="box_info_body">
                         <span>Состояние</span>
-                        <select id="conditionitme" name="conditionitme" required>
-                            {% for i in conditionitme %}
-                                <option value="{{ i.id }}">{{ i.name}}</option>
-                            {% endfor %}
-                        </select>
-                        <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='conditionitme') }}')"></button>
+                        {% set id_p = 'conditionitme' %}
+                        {% set id_index = conditionitme %}
+                        {% set id_name  = "fk_ConditionItme" %}
+                        {% if item %}
+                            {% set item_position = item.model_ConditionItme %}
+                        {% endif %}
+                        {% include "/cmms/include/parameters_select.html" %}
+{#                        <select id="conditionitme" name="fk_ConditionItme" required>#}
+{#                            {% for i in conditionitme %}#}
+{#                                <option value="{{ i.id }}">{{ i.name}}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+                        <button type="button" class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='conditionitme') }}')"></button>
                     </div>
                 </div>
             </div>
@@ -87,50 +135,82 @@
                 <div class="box_info box_info_in_line">
                     <div class="box_info_body">
                         <span>Тип оборудования</span>
-                        <select id="typeequipment" name="typeequipment" required>
-                            {% for i in typeequipment %}
-                                <option value="{{ i.id }}">{{ i.name}}</option>
-                            {% endfor %}
-                        </select>
-                        <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='typeequipment') }}')"></button>
+                        {% set id_p = 'typeequipment' %}
+                        {% set id_index = typeequipment %}
+                        {% set id_name  = "fk_TypeEquipment" %}
+                        {% if item %}
+                            {% set item_position = item.model_TypeEquipment %}
+                        {% endif %}
+                        {% include "/cmms/include/parameters_select.html" %}
+{#                        <select id="typeequipment" name="fk_TypeEquipment" required>#}
+{#                            {% for i in typeequipment %}#}
+{#                                <option value="{{ i.id }}">{{ i.name}}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+                        <button type="button" class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='typeequipment') }}')"></button>
                     </div>
                     <div class="box_info_body">
                         <span>Место эксплуатации</span>
-                        <select id="placeoperation" name="placeoperation" required>
-                            {% for i in placeoperation %}
-                                <option value="{{ i.id }}">{{ i.name}}</option>
-                            {% endfor %}
-                        </select>
-                        <button class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='placeoperation') }}')"></button>
+                        {% set id_p = 'placeoperation' %}
+                        {% set id_index = placeoperation %}
+                        {% set id_name  = "fk_PlaceOperation" %}
+                        {% if item %}
+                            {% set item_position = item.model_PlaceOperation %}
+                        {% endif %}
+                        {% include "/cmms/include/parameters_select.html" %}
+
+{#                        <select id="placeoperation" name="fk_PlaceOperation" required>#}
+{#                            {% for i in placeoperation %}#}
+{#                                <option value="{{ i.id }}">{{ i.name}}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+                        <button type="button" class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='placeoperation') }}')"></button>
                     </div>
                     <div class="box_info_body">
                         <span>Вес</span>
-                        <input type="number" name="weight" required>
+                        {% set id_name  = "weight" %}
+                        {% if item %}
+                            {% set id_value = item.weight %}
+                        {% endif %}
+                        {% include "/cmms/include/parameters_input.html" %}
+{#                        <input type="number" name="weight" value="0" required>#}
                     </div>
                     <div class="box_info_body">
                         <span>Стоимость</span>
-                        <input type="number" name="price" required>
+                        {% set id_name  = "price" %}
+                        {% if item %}
+                            {% set id_value = item.price %}
+                        {% endif %}
+                        {% include "/cmms/include/parameters_input.html" %}
+{#                        <input type="number" name="price" value="0" required>#}
                     </div>
                 </div>
                 <div class="box_info_body">
                     <span>Дата ввода в эксплуатацию</span>
-                    <input type="date" name="exploitation" value="{{ data_time }}" required>
+                    {% if item %}
+                        <input type="date" name="exploitation" value="{{ item.exploitation }}" required>
+                        {% else %}
+                            <input type="date" name="exploitation" value="{{ data_time }}" required>
+                    {% endif %}
                 </div>
             </div>
         </div>
-    </form>
-    <div class="buttom_menu" style="display: flex; justify-content: flex-end;">
-        <button>OK</button>
-        <button type="submit" onclick="changeFormHandler('add', 'but_add')" id="but_add" name="action" value="add">Сохранить</button>
-        <button onclick="location.href='{{ url_for('index.index') }}'">Отмена</button>
-    </div>
-
+        <div class="buttom_menu" style="display: flex; justify-content: flex-end;">
+            {% if item %}
+                <button type="submit" class="delete_but" onclick="return delete_item();" formnovalidate>Удалить</button>
+            {% endif %}
+{#            <button onclick="document.getElementById('add').submit();">OK</button>#}
+            <button type="submit">Сохранить</button>
+{#            <button type="button" onclick="changeFormHandler('add', 'but_add')" id="but_add" name="action" value="add">Сохранить</button>#}
+            <button type="button" onclick="location.href='{{ url_for('index.index') }}'">Отмена</button>
+        </div>
+     </form>
     <dialog id="dialog_open_option" class="dialog_window">
         <iframe id="dialogIframe" width="900px" height="510px" style="border: none;"></iframe>
     </dialog>
 
     <script src="{{ url_for('static', filename='js/form.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/dialog_open_window.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dialog_open_window.js') }}" defer></script>
 
 {#    <script>#}
 {#            document.getElementById('manufactureritme').addEventListener('change', function(event){#}

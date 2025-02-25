@@ -74,11 +74,17 @@ class Item(db.Model):
     weight = db.Column(db.Float, default=None)
     price = db.Column(db.Float, default=None)
     exploitation = db.Column(db.Date, default=datetime.today)
-    fk_ManufacturerItme = db.Column(db.Integer, db.ForeignKey('manufactureritme.id'), nullable=False)
-    fk_StatusItme = db.Column(db.Integer, db.ForeignKey('statusitme.id'), nullable=False)
-    fk_ConditionItme = db.Column(db.Integer, db.ForeignKey('conditionitme.id'), nullable=False)
-    fk_TypeEquipment = db.Column(db.Integer, db.ForeignKey('typeequipment.id'), nullable=False)
-    fk_PlaceOperation = db.Column(db.Integer, db.ForeignKey('placeoperation.id'), nullable=False)
+    fk_ModelItme = db.Column(db.Integer, db.ForeignKey('modelitme.id', ondelete='SET NULL'), nullable=True)
+    fk_StatusItme = db.Column(db.Integer, db.ForeignKey('statusitme.id', ondelete='SET NULL'), nullable=True)
+    fk_ConditionItme = db.Column(db.Integer, db.ForeignKey('conditionitme.id', ondelete='SET NULL'), nullable=True)
+    fk_TypeEquipment = db.Column(db.Integer, db.ForeignKey('typeequipment.id', ondelete='SET NULL'), nullable=True)
+    fk_PlaceOperation = db.Column(db.Integer, db.ForeignKey('placeoperation.id', ondelete='SET NULL'), nullable=True)
+
+    model_item = db.relationship("ModelItme", backref="items")
+    model_StatusItme = db.relationship("StatusItme", backref="items")
+    model_ConditionItme = db.relationship("ConditionItme", backref="items")
+    model_TypeEquipment = db.relationship("TypeEquipment", backref="items")
+    model_PlaceOperation = db.relationship("PlaceOperation", backref="items")
 
     def __repr__(self):
         return f'<Name:{self.name}>'

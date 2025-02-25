@@ -1,6 +1,6 @@
 <div class="box_info_body" style="width: 40%;">
     <span>Производитель</span>
-    <select id="manufactureritme" name="parent">
+    <select id="manufactureritme" name="fk_ModelItme">
         {% for m in parent_records %}
             {% if m.id|int == id_parent|int %}
                 <option value="{{ m.id }}" required selected="selected">{{ m.name }}</option>

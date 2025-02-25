@@ -3,6 +3,12 @@ import datetime
 import time
 print(time.time())
 
+p = dict()
+
+p.update(ke = '123')
+
+print(p)
+
 # print(datetime.datetime.today)
 # field = 'sfsdfsdfsdf'
 # matcher = 'sdfsdfsdfsdf'

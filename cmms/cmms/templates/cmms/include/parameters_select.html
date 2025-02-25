@@ -1,0 +1,26 @@
+{#Я сам в шоке, не спрашивайте #}
+{% if item %}
+    <select id="{{ id_p }}" name="{{ id_name }}" required>
+        {% if item_position == None %}
+              <option selected="selected"></option>
+        {% endif %}
+        {% for foo in id_index %}
+            {% if item_position %}
+                {% if foo.id|int == item_position.id|int %}
+                    <option value="{{ foo.id }}" selected="selected">{{ foo.name }}</option>
+                {% else %}
+                     <option value="{{ foo.id }}">{{ foo.name }}</option>
+            {% endif %}
+            {% else %}
+
+                 <option value="{{ foo.id }}">{{ foo.name }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    {% else %}
+        <select id="{{ id_p }}" name="{{ id_name }}" required>
+            {% for foo in id_index %}
+                <option value="{{ foo.id }}">{{ foo.name }}</option>
+            {% endfor %}
+        </select>
+{% endif %}
