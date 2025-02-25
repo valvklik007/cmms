@@ -227,7 +227,7 @@ tbody tr:hover{
 
 .box_info_body{
 	display: flex;
-	justify-content: space-between;
+	/* justify-content: space-between; */
 	align-items: center;
 	margin-top: 15px;
 	margin-left: 20px;

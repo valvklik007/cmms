@@ -67,7 +67,31 @@ class ConditionItme(db.Model):
         return f'<Name:{self.name}>'
 
 
+class Notepad(db.Model):
+    __tablename__ = 'notepad'
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.Text, default=None)
+    fk_item = db.Column(db.Integer, db.ForeignKey('item.id', ondelete='CASCADE'), nullable=False, unique=True)
+    item = db.relationship('Item', back_populates='notepad')
+
+    def __repr__(self):
+        return f'<text:{self.text}>'
+
+
+class ManualBook(db.Model):
+    __tablename__ = 'manualbook'
+    id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.String(100), unique=True)
+    fk_item = db.Column(db.Integer, db.ForeignKey('item.id', ondelete='CASCADE'), nullable=False)
+    item = db.relationship('Item', back_populates='manualbook')
+
+    def __repr__(self):
+        return f'<slug:{self.slug}>'
+
+
+
 class Item(db.Model):
+    __tablename__ = 'item'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text, default=None)
@@ -85,6 +109,8 @@ class Item(db.Model):
     model_ConditionItme = db.relationship("ConditionItme", backref="items")
     model_TypeEquipment = db.relationship("TypeEquipment", backref="items")
     model_PlaceOperation = db.relationship("PlaceOperation", backref="items")
+    notepad = db.relationship('Notepad', back_populates='item', uselist=False, cascade='all, delete-orphan')
+    manualbook = db.relationship('ManualBook', back_populates='item', uselist=True, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Name:{self.name}>'

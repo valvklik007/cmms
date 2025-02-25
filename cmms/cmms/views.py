@@ -1,3 +1,6 @@
+from idlelib.rpc import request_queue
+from re import template
+
 from flask import request, render_template, url_for, session, redirect
 import datetime, time
 
@@ -38,21 +41,31 @@ class BaseRepository:
 
     def add(self, **kwargs):
         item = self._model(**kwargs)
-        self._db.add(item)
-        self._db.commit()
+        try:
+            self._db.add(item)
+            self._db.commit()
+        except Exception as e:
+            self._db.rollback()
         return item
 
-    def update(self, id_i, **kwargs):
-        item = self._model.query.filter_by(id=id_i)
-        item.update({**kwargs})
-        self._db.commit()
+    def update(self, item, **kwargs):
+        # item = self._model.query.filter_by(id=id_i)
+        try:
+            item.update({**kwargs})
+            self._db.commit()
+        except:
+            self._db.rollback()
 
     def delete(self, id_item):
         item = self._model.query.filter_by(id = id_item).first()
         if item:
-            self._db.delete(item)
-            self._db.commit()
-            return True
+            try:
+                self._db.delete(item)
+                self._db.commit()
+                return True
+            except:
+                self._db.rollback()
+                return False
 
     def que(self):
         #запрос
@@ -63,7 +76,7 @@ class BaseRepository:
         return self._db.query(self._model).all()
 
     def get_filter(self, **kwargs):
-        #Сформулировать запрос и вывести все
+        #Сформулировать запрос и вывести
         return self._db.query(self._model).filter_by(**kwargs)
 
     def property_parent(self, name):
@@ -120,6 +133,11 @@ class PlaceOperation(BaseRepository):
 class Item(BaseRepository):
     def __init__(self):
         super().__init__(models.Item)
+
+
+class Notepad(BaseRepository):
+    def __init__(self):
+        super().__init__(models.Notepad)
 
 
 name_table ={
@@ -181,12 +199,29 @@ def render_and_update_item(id):
             rq = req_litter(request)
             exploitation_date = datetime.datetime.strptime(rq['exploitation'], '%Y-%m-%d').date()
             rq['exploitation'] = exploitation_date
-            print(f'up-----{rq}')
-            Item().update(id_i=id, **rq)
+            item = Item().get_filter(id=id)
+            Item().update(item, **rq)
             return []
         if request.method == 'DELETE':
             Item().delete(id)
             return redirect(url_for('index.add_item'), 303)
+    else:
+        return redirect(url_for('index.add_item'))
+
+
+"""Блокнот карточки"""
+def notepad(id):
+    item = Item().que().get(id)
+    if item is not None:
+        if request.method == 'POST':
+            rq = req_litter(request)
+            q = Notepad().get_filter(fk_item=id)
+            if q.first() is not None:
+                q = Notepad().get_filter(fk_item=id)
+                Notepad().update(q, **rq)
+            else:
+                Notepad().add(**rq)
+        return render_template('/cmms/notepad.html', item=item)
     else:
         return redirect(url_for('index.add_item'))
 

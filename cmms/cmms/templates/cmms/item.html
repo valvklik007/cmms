@@ -1,24 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div class="window_flag_close">
-        <span>Карточка</span>
-        <a href="#" class="flag_close"></a>
-    </div>
-    <div class="menu_box">
-        <div class="left_menu_item">
-            <a href="" class="menu_item activate_menu_item">Основное</a>
-            <a href="" class="menu_item">Обслуживание</a>
-        </div>
-        <div class="right_menu_item">
-            {% if item %}
-                    <a href="" class="menu_item">Документы</a>
-                    <a href="" class="menu_item">Коментарии</a>
-                {% else %}
-                    <a href="" class="menu_item no-cklik">Документы</a>
-                    <a href="" class="menu_item no-cklik">Коментарии</a>
-            {% endif %}
-        </div>
-    </div>
+{% set activate = 'main' %}
+{% if item is not defined %}
+    {% set activate_click = 'no'  %}
+{% endif %}
+{% include "include/top_menu_item.html" %}
     {% if item %}
         <form id="add" action="" method="PUT" required>
         {% else %}

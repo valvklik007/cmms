@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% set activate = 'notepad' %}
+    {% include "include/top_menu_item.html" %}
+    <form id="add" action="" method="POST" required>
+        <div class="main_box_info">
+            <div class="titel_box_info">
+                <span>Блокнот</span>
+            </div>
+            <div class="box_body_main">
+                <div class="box_info_body" style="display: flex; align-items: center;	width: 95%; margin-left: 20px;">
+                    <span>Комментарии</span>
+                        <textarea style="width: 90%; height: 412px;" name="text" id="" cols="30" rows="9">{{ item.notepad.text }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="buttom_menu" style="display: flex; justify-content: flex-end;">
+            <button type="submit" name="fk_item" value="{{ item.id }}">Сохранить</button>
+            <button type="button" onclick="location.href='{{ url_for("index.render_and_update_item", id=item.id) }}'">Отмена</button>
+        </div>
+    </form>
+{% endblock %}
