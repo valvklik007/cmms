@@ -1,4 +1,8 @@
+import re, os
+import string
+from fileinput import filename
 from idlelib.rpc import request_queue
+import random
 from re import template
 
 from flask import request, render_template, url_for, session, redirect
@@ -10,7 +14,9 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import joinedload
 
-from app import db, turbo
+from werkzeug.utils import secure_filename
+
+from app import db, turbo, app
 import inspect
 
 from cmms import models
@@ -63,7 +69,7 @@ class BaseRepository:
                 self._db.delete(item)
                 self._db.commit()
                 return True
-            except:
+            except Exception as e:
                 self._db.rollback()
                 return False
 
@@ -139,6 +145,10 @@ class Notepad(BaseRepository):
     def __init__(self):
         super().__init__(models.Notepad)
 
+class ManualBook(BaseRepository):
+    def __init__(self):
+        super().__init__(models.ManualBook)
+
 
 name_table ={
     'manufactureritme' : ManufacturerItme(),
@@ -170,9 +180,6 @@ def index():
     return render_template('/cmms/index.html')
 
 
-def add_and_delete_item(req):
-    pass
-
 "Добавления карточки оборудования"
 def add_item():
     if request.method == 'GET':
@@ -183,11 +190,11 @@ def add_item():
         exploitation_date = datetime.datetime.strptime(rq['exploitation'], '%Y-%m-%d').date()
         rq['exploitation'] = exploitation_date
         id_add = Item().add(**rq)
-        return redirect(url_for('index.render_and_update_item', id=id_add.id), 303)
+        return redirect(url_for('index.render_item_and_update_and_delete', id=id_add.id), 303)
 
 
 "Редактирования и удаления карточки оборудования"
-def render_and_update_item(id):
+def render_item_and_update_and_delete(id):
     item = Item().que().get(id)
     if item is not None:
         if request.method == 'GET':
@@ -226,25 +233,42 @@ def notepad(id):
         return redirect(url_for('index.add_item'))
 
 
-def update_model_item(id):
-    model = models.ModelItme.query.filter_by(fk_ModelItme = id).all()
+"""Обслуживание"""
+def maintenance(id):
 
-    # model = models.ManufacturerItme.query.filter(ModelItme.id == id).all()
-    print(model)
-    if model is None:
-        return ''
-    else:
-        return f"<p>{model}</p>"
+    return render_template('cmms/to_add_edit.html')
 
 
-# def get_parent_table(model):
-#     """Определяет родительскую таблицу по ForeignKey"""
-#     mapper = db.inspect(model)  # Получаем маппер SQLAlchemy
-#     for rel in mapper.columns.values():
-#         if rel.foreign_keys:  # Проверяем, если есть внешний ключ
-#             # print(rel.name)
-#             return request_db(next(iter(rel.foreign_keys)).column.table.name), rel.name
-#     return None, None
+"""Рандом"""
+def ran(i):
+    a = string.ascii_lowercase
+    c = string.digits
+    n = ""
+    for sim_1 in range(i):
+        n = n + random.choice(a + c)
+    return n
+
+
+"""Документация"""
+def manual_book(id):
+    item = Item().que().get(id)
+    if item is not None:
+        if request.method == 'DELETE':
+            print(request.form['delete'])
+            ManualBook().delete(request.form['delete'])
+            return redirect(url_for('index.manual_book', id=item.id), 201)
+        elif request.method == 'POST':
+            file = request.files.getlist('files')
+            for m in file:
+                re_f = re.sub(r'[\]\[\/\\;,><&*:%=+@!#{}^()|?^ ]', '-', m.filename)
+                file = f"{item.name}-{ran(10)}-{re_f}"
+                m.save(os.path.join(app.config['UPLOAD_FOLDER'], file))
+                ManualBook().add(**dict(slug = file, fk_item = id,))
+
+            return redirect(url_for('index.manual_book', id=item.id))
+
+        return render_template('/cmms/manual.html', item=item)
+    return redirect(url_for('index.add_item'))
 
 
 "Стримы turbo flask"

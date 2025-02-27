@@ -5,8 +5,12 @@
 	--color-background-box_info: #e0e8fe;
 	--color-text-for-background-box_info: #454950;
 	--color-teg-a-no-cklik: gray;
+	--color-link: #709bf9;
+	--color-hover: #083db1;
+	--color-active: #97a3bd;
 
 }
+
 html{
 	height: 100%;
 }
@@ -341,4 +345,90 @@ tbody tr:hover{
 
 .delete_but:active{
 	background: #cb5050 !important;
+}
+
+
+.delete_files{
+	margin-left: 9px;
+}
+
+.delete_files::after{
+	transform: rotateZ(40deg);
+}
+
+.delete_files::before{
+	transform: rotateZ(-40deg);
+}
+
+.top_file{
+	margin-top: 20px;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+
+.files{
+	display: flex;
+	margin-top: 20px;
+	margin-right: 30px;
+}
+
+.files a{
+	color: var(--color-link);
+}
+
+.files a:hover{
+	color: var(--color-hover);
+}
+
+.files a:active{
+	color: var(--color-active);
+}
+
+.box_in_file_info{
+	width: 98%;
+	align-items: flex-start;
+	flex-direction: column;
+}
+
+.input_file_activate{
+	padding: 13px 0px 9px 37px;
+	width: 96%;
+	height: 100px;
+}
+
+.input_file_activate:hover{
+	cursor: pointer;
+	border-radius: 5px;
+	background-color: #7ea6e126;
+}
+
+.input_file_activate:active{
+	background-color: #5a5ae726;
+}
+
+.drop_file{
+	background: #0000009c;
+    position: absolute;
+    width: 98%;
+    height: 98%;
+    top: 7px;
+    left: 9px;
+	border-radius: 7px;
+}
+
+.drop_file::after, .drop_file::before {
+	content: '';
+    display: block;
+    position: relative;
+    width: 50px;
+    height: 7px;
+    background-color: #fff8f8;
+    left: 45%;
+    top: 47%;
+	box-shadow: 0.05em -0.1em 2em #dbdbdb;
+}
+.drop_file::before{
+	transform: rotateZ(90deg);
+	top: 47.8%;
 }

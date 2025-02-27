@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% set activate = 'book' %}
+    {% include "include/top_menu_item.html" %}
+    <form id="add" action="{{ url_for('index.manual_book', id=item.id) }}" method="POST" enctype="multipart/form-data" required>
+        		<div class="main_box_info">
+			<div class="titel_box_info">
+				<span>Загрузка</span>
+			</div>
+			<div class="box_body_main">
+				<div class="box_info box_in_file_info">
+					<div class="box_info_body box_in_file_info">
+						<input type="file" id="file" name="files" class="input_file_activate"  multiple required>
+						<div class="buttom_menu" style="display: flex; justify-content: flex-end;  position: absolute;  margin-top: 55px;">
+							<button type="submit" style="margin-left: 20px">Загрузить</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+    </form>
+
+		<div class="main_box_info">
+			<div class="titel_box_info">
+				<span>Файлы</span>
+			</div>
+			<div class="box_body_main">
+				<div class="box_info">
+					<div class="top_file">
+                        {% for m in item.manualbook %}
+                            <div class="files" data-id="{{ m.id }}">
+                                <a href="{{ url_for('static', filename='manual/'+m.slug) }}" target=_blank"">{{ m.slug }}</a>
+                                <button type="button" class="add delete_files" id="delete" name="delete" value="{{ m.id }}" onclick=""></button>
+                            </div>
+                        {% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="buttom_menu" style="display: flex; justify-content: flex-end;">
+			<button onclick="location.href='{{ url_for("index.render_item_and_update_and_delete", id=item.id) }}'">Назад</button>
+		</div>
+    <div class="drop_file" style="display: none" id="drop_file"></div>
+    <script src="{{ url_for('static', filename='js/file.js') }}"></script>
+    <script>
+        buttons = document.querySelectorAll('#delete');
+        buttons.forEach((but) => {
+            but.addEventListener('click', function(){
+                const form_data = new FormData();
+                form_data.append(this.name, this.value)
+                fetch(location.pathname, {
+                    method: "DELETE",
+                    body: form_data,
+                })
+                 .then(req => {
+                     if (req.ok){
+                         document.querySelector(`.files[data-id="${this.value}"]`).remove()
+                     }
+                 })
+            });
+        })
+    </script>
+{% endblock %}

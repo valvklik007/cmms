@@ -1,13 +1,17 @@
 import datetime
-
+import random
 import time
-print(time.time())
+import string
 
-p = dict()
+b = string.ascii_lowercase
+c = string.digits
 
-p.update(ke = '123')
 
-print(p)
+n = ""
+for sim_1 in range(10):
+    n = n + random.choice(b+c)
+print(n)
+
 
 # print(datetime.datetime.today)
 # field = 'sfsdfsdfsdf'

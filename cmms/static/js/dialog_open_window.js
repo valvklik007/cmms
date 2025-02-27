@@ -32,23 +32,6 @@ function update_table() {
 		});
 }
 
-// const socket = new WebSocket('ws://127.0.0.1:5000/turbo-stream');
-
-// socket.addEventListener('message', function (event) {
-// 	console.log('----'+start_select+'-----');
-// 	console.log('Получено сообщение от сервера:', event.data);
-// 	lastText = document.getElementById("modelitme");
-// 	setTimeout(()=>{
-// 		for(let option of lastText.options){
-// 			if(option.value == start_select){
-// 				option.selected = true;	
-// 				start_select = document.getElementById('modelitme').value;
-// 				break;
-// 			}
-// 		}}, 100)
-// });
-
-
 if (document.getElementById('modelitme')){
 	start_select = document.getElementById('modelitme').value;
 	// lastText = document.getElementById("modelitme").innerText;

@@ -17,7 +17,7 @@
 
         <div class="buttom_menu" style="display: flex; justify-content: flex-end;">
             <button type="submit" name="fk_item" value="{{ item.id }}">Сохранить</button>
-            <button type="button" onclick="location.href='{{ url_for("index.render_and_update_item", id=item.id) }}'">Отмена</button>
+            <button type="button" onclick="location.href='{{ url_for("index.render_item_and_update_and_delete", id=item.id) }}'">Назад</button>
         </div>
     </form>
 {% endblock %}
