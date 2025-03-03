@@ -28,11 +28,18 @@ function formSubmit(form, id_but) {
 	form_new = new FormData(form);
 	form_new.append(but.getAttribute('name'), but.getAttribute('value'));
 	// parent = document.getElementById('parent');
+	if (document.getElementById('schedules_form')){
+		new FormData(document.getElementById('schedules_form')).forEach((value, key) =>{
+			form_new.append(key, value)
+		})
+	}
 	if (document.getElementById('parent')){
 		new FormData(document.getElementById('parent')).forEach((value, key) => {
 			form_new.append(key, value);
 		});
 	}
+
+	console.log(form_new)
 		
 
 	request.send(form_new); // create FormData from form that triggered event

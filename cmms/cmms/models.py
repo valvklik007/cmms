@@ -131,6 +131,8 @@ class Maintenance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     data_time = db.Column(db.Date, default=datetime.today)
+    data_time_old = db.Column(db.Date, default=datetime.today)
+    check_work = db.Column(db.Boolean, default=False)
     fk_schedule = db.Column(db.Integer, db.ForeignKey('schedules.id', ondelete='SET NULL'), nullable=False)
     fk_regulatory_work = db.Column(db.Integer, db.ForeignKey('regulatorywork.id', ondelete='SET NULL'), nullable=False)
     fk_item = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=False)

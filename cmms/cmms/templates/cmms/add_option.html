@@ -4,14 +4,15 @@
                 <span>Добавления варианта</span>
                 <a href="#" onclick="handleClose()" class="flag_close"></a>
             </div>
-{#                {% for m in option_values|unique(attribute='parent.name') %}#}
-{#                    <p>{{ m.parent.name }}</p>#}
-{#                {% endfor %}#}
                 {% if parent_records %}
                     <form onsubmit="return false" id="parent" action="" method="post">
                         {% include "/cmms/include/add_manufactureritme.html" %}
                     </form>
                 {% endif %}
+                {% if url == 'schedules' %}
+                     {% include "/cmms/include/schedules.html" %}
+                {% endif %}
+
             <div class="main_box_info">
                 <div class="titel_box_info">
                     <span>Добавления</span>
@@ -27,7 +28,7 @@
                             </form>
 
                         <form onsubmit="return false" id="delete" action="" method="post" class="box_info_body box_info_body_full_screen_flex">
-                            <span>Тип расписания</span>
+                            <span>Тип варианта</span>
                             <select id="{{ request.path.split('/')[-2] }}" name="allocated_name" multiple style="height: 200px;" required>
                                 {% include "/cmms/include/add_option_value.html" %}
                             </select>

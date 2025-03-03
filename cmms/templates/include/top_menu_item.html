@@ -6,12 +6,10 @@
 <div class="menu_box">
     <div class="left_menu_item">
         <a href="{{ url_for("index.render_item_and_update_and_delete", id=item.id) if item is defined and activate not in 'main' else "#" }}" class="menu_item {{ "activate_menu_item" if activate == 'main' }}">Основное</a>
-        <a href="" class="menu_item {{ "activate_menu_item" if activate == 'service' }} {{ "no-cklik" if activate_click }}">Обслуживание</a>
+        <a href="{{ url_for("index.maintenance_menu", id=item.id) if item is defined and activate not in 'service' else "#" }}" class="menu_item {{ "activate_menu_item" if activate == 'service' }} {{ "no-cklik" if activate_click }}">Обслуживание</a>
     </div>
     <div class="right_menu_item">
         <a href="{{ url_for("index.manual_book", id=item.id) if item is defined and activate not in 'book' else "#" }}" class="menu_item {{ "activate_menu_item" if activate == 'book' }} {{ "no-cklik" if activate_click }}">Документы</a>
         <a href="{{ url_for("index.notepad", id=item.id) if item is defined and activate not in 'notepad' else "#" }}" class="menu_item {{ "activate_menu_item" if activate == 'notepad'}} {{ "no-cklik" if activate_click }}">Комментарии</a>
     </div>
 </div>
-{#{{ url_for("index.notepad", id=item.id) if item is defined and item is not none and activate != 'main' else "#" }}#}
-{#{{ url_for("index.notepad", id=item.id) if item is defined and activate not in 'notepad' else "#" }}#}

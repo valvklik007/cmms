@@ -1,17 +1,18 @@
 import re, os
 import string
+from datetime import timedelta
 from fileinput import filename
 from idlelib.rpc import request_queue
 import random
+from lib2to3.fixes.fix_input import context
 from re import template
-
-from flask import request, render_template, url_for, session, redirect
+from flask import request, render_template, url_for, session, redirect, flash
 import datetime, time
-
+from dateutil.relativedelta import relativedelta
 from mypy.nodes import set_flags
 from sqlalchemy.dialects.postgresql import psycopg_async
 from sqlalchemy.inspection import inspect
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, and_, or_
 from sqlalchemy.orm import joinedload
 
 from werkzeug.utils import secure_filename
@@ -35,10 +36,6 @@ def req_litter(req):
         request_key.update({key: value})
     return request_key
 
-# def is_foreign_key(column):
-#     # Проверяем, является ли тип столбца ForeignKey
-#     return any(isinstance(constraint, ForeignKey) for constraint in column.foreign_keys)
-
 
 class BaseRepository:
     def __init__(self, model):
@@ -46,21 +43,25 @@ class BaseRepository:
         self._model = model
 
     def add(self, **kwargs):
-        item = self._model(**kwargs)
         try:
+            item = self._model(**kwargs)
             self._db.add(item)
             self._db.commit()
+            return item
         except Exception as e:
             self._db.rollback()
-        return item
+        return False
 
     def update(self, item, **kwargs):
         # item = self._model.query.filter_by(id=id_i)
         try:
             item.update({**kwargs})
             self._db.commit()
-        except:
+            return True
+        except Exception as e:
+            print(e)
             self._db.rollback()
+        return False
 
     def delete(self, id_item):
         item = self._model.query.filter_by(id = id_item).first()
@@ -71,7 +72,7 @@ class BaseRepository:
                 return True
             except Exception as e:
                 self._db.rollback()
-                return False
+        return False
 
     def que(self):
         #запрос
@@ -137,8 +138,9 @@ class PlaceOperation(BaseRepository):
         super().__init__(models.PlaceOperation)
 
 class Item(BaseRepository):
+    model = models.Item
     def __init__(self):
-        super().__init__(models.Item)
+        super().__init__(self.model)
 
 
 class Notepad(BaseRepository):
@@ -149,6 +151,27 @@ class ManualBook(BaseRepository):
     def __init__(self):
         super().__init__(models.ManualBook)
 
+class Schedules(BaseRepository):
+    def __init__(self):
+        super().__init__(models.Schedules)
+
+class RegulatoryWork(BaseRepository):
+    def __init__(self):
+        super().__init__(models.RegulatoryWork)
+
+
+class Maintenance(BaseRepository):
+    model = models.Maintenance
+    def __init__(self):
+        super().__init__(self.model)
+
+    def get_exist(self, id_item, id_maintenance):
+        q = db.session.query(self.model).filter(
+            self.model.id == id_maintenance,
+            self.model.fk_item == id_item,
+        ).scalar()
+        return q
+
 
 name_table ={
     'manufactureritme' : ManufacturerItme(),
@@ -157,6 +180,8 @@ name_table ={
     'conditionitme': ConditionItme(),
     'typeequipment' : TypeEquipment(),
     'placeoperation' : PlaceOperation(),
+    'regulatorywork' : RegulatoryWork(),
+    'schedules': Schedules(),
 }
 
 
@@ -177,20 +202,35 @@ def context_template_item():
 
 """Главная страница"""
 def index():
-    return render_template('/cmms/index.html')
+    context = dict(
+        item = Item().get_all(),
+        maint = Maintenance.model.query.filter(
+            Maintenance.model.check_work == False
+        ).order_by(
+            Maintenance.model.check_work.asc(),
+            Maintenance.model.data_time.asc(),
+        ).all(),
+        new_data=datetime.datetime.now().date() + timedelta(days=2),
+    )
+
+    return render_template('/cmms/index.html', **context)
 
 
 "Добавления карточки оборудования"
 def add_item():
-    if request.method == 'GET':
-        tem_context = context_template_item()
-        return render_template('/cmms/item.html', **tem_context)
+    tem_context = context_template_item()
     if request.method == 'POST':
         rq = req_litter(request)
         exploitation_date = datetime.datetime.strptime(rq['exploitation'], '%Y-%m-%d').date()
         rq['exploitation'] = exploitation_date
         id_add = Item().add(**rq)
-        return redirect(url_for('index.render_item_and_update_and_delete', id=id_add.id), 303)
+        if id_add:
+            flash('Успешно добавили', 'info')
+            return redirect(url_for('index.render_item_and_update_and_delete', id=id_add.id), 303)
+        else:
+            flash('Ошибка добавления', 'error')
+            return redirect(url_for('index.add_item'))
+    return render_template('/cmms/item.html', **tem_context)
 
 
 "Редактирования и удаления карточки оборудования"
@@ -208,11 +248,14 @@ def render_item_and_update_and_delete(id):
             rq['exploitation'] = exploitation_date
             item = Item().get_filter(id=id)
             Item().update(item, **rq)
-            return []
+            flash('Успешно обновлены данные', 'info')
+            return redirect(url_for('index.render_item_and_update_and_delete', id=id), 303)
         if request.method == 'DELETE':
             Item().delete(id)
+            flash('Успешно удалено', 'info')
             return redirect(url_for('index.add_item'), 303)
     else:
+        flash('Такой карточки оборудования нет', 'info')
         return redirect(url_for('index.add_item'))
 
 
@@ -233,10 +276,91 @@ def notepad(id):
         return redirect(url_for('index.add_item'))
 
 
-"""Обслуживание"""
-def maintenance(id):
+"""Меню обслуживания"""
+def maintenance_menu(id):
+    item = Item().que().get(id)
 
-    return render_template('cmms/to_add_edit.html')
+    if request.values.get('delete') is not None:
+        Maintenance().delete(request.values.get('delete'))
+        return redirect(url_for('index.maintenance_menu', id=id), 303)
+
+    if request.values.get('work') is not None:
+        # check_work
+        print(request.values.get('work'))
+        i = Maintenance().get_filter(id=request.values.get('work'))
+        Maintenance().update(i, check_work=True)
+        return redirect(url_for('index.maintenance_menu', id=id), 303)
+
+    if item is not None:
+        context = dict(
+            q = Maintenance.model.query.filter(
+                Maintenance.model.fk_item == id,
+            ).order_by(
+                Maintenance.model.check_work.asc(),
+                Maintenance.model.data_time.asc(),
+            ),
+            new_data =  datetime.datetime.now().date() + timedelta(days=2),
+            item=item,
+        )
+    else:
+        return redirect(url_for('index.add_item'))
+    return render_template('/cmms/service.html', **context)
+
+
+"""Даты"""
+def deltatime(i, number):
+    deltatime = {
+        'days': relativedelta(days=number),
+        'weeks': relativedelta(weeks=number),
+        'months': relativedelta(months=number),
+        'years': relativedelta(years=number),
+    }
+    return deltatime[i]
+
+"""Обслуживание"""
+def maintenance(id, id_maintenance):
+    #Если id_maintenance == 0, то это является созданием обслуживания
+    item = Item().que().get(id)
+    maintenance_c = Maintenance()
+    #Проверяем, есть ли указная карточка, либо делаем redirect на добавлении карточки
+    if item is not None:
+        context = dict(
+            data_time = datetime.datetime.now().strftime("%Y-%m-%d"),
+            maintenance = maintenance_c.que().get(id_maintenance),
+            schedules = Schedules().get_all(),
+            regulatorywork = RegulatoryWork().get_all(),
+            item = item,
+            url = request.url
+        )
+        if request.method != 'GET':
+            rq = req_litter(request)
+            check_work = datetime.datetime.strptime(rq['data_time'], '%Y-%m-%d').date()
+            q = Schedules().get_filter(id=rq['fk_schedule']).first()
+            rq['data_time'] = check_work + deltatime(q.period, +q.date_time)
+            rq['fk_item'] = id
+            rq.update(data_time_old = check_work)
+
+        # id_maintenance == 0, 0 это создания обслуживания
+        if id_maintenance is 0:
+            if request.method == 'POST':
+                add = maintenance_c.add(**rq)
+                flash('Добавлено', 'info')
+                return redirect(url_for('index.maintenance', id=id, id_maintenance=add.id), 303)
+        else:
+            # Проверяем, принадлежит ли запись к данной карточки, если нет, то делаем redirect на id_maintenance = 0
+            q = maintenance_c.get_exist(id_item=id, id_maintenance=id_maintenance)
+            if q:
+                if request.method == 'PUT':
+                    print(request.form)
+                    main = maintenance_c.get_filter(id=id_maintenance)
+                    maintenance_c.update(main, **rq)
+                    flash('Отредактировано', 'info')
+                    return redirect(url_for('index.maintenance', id=id, id_maintenance=id_maintenance), 303)
+            else:
+                return redirect(url_for('index.maintenance', id=id, id_maintenance=0), 303)
+
+        return render_template('cmms/to_add_edit.html', **context)
+    return redirect(url_for('index.add_item'))
 
 
 """Рандом"""
@@ -300,10 +424,28 @@ def add_delete_option(data):
     if request.method == "POST":
         if request.form['action'] == 'add':
             request_key = {}
+
+            date_time = {
+                "days": "days",
+                "weeks": "weeks",
+                "months": "months",
+                "years": "years",
+            }
+
+            if data == 'schedules':
+                if not request.form.get('period'):
+                    return []
+                elif not date_time.get(request.form['period']):
+                    return []
+
             for key, value in request.form.items():
                 if 'action' not in key:
                     request_key.update({key: value})
+
             it = name_table[data].add(**request_key)
+            if not it:
+                flash('Ошибка', 'error')
+                return redirect(url_for('index.add_delete_option', data=data), 200)
             data_dict.update(option_values = name_table[data].get_filter(**request_key).all(),)
 
             if turbo.can_stream():
@@ -319,12 +461,14 @@ def add_delete_option(data):
             option_values = name_table[data].get_filter(fk_ModelItme = request.values.get('id')).all()
             parent_records = name_table[name_table[data].property_parent('parent')].get_all()
     else:
-       option_values = name_table[data].get_all()
+        option_values = name_table[data].get_all()
+        print(option_values)
 
     data_dict.update(
         option_values=option_values,
         parent_records=parent_records,
         id_parent = request.values.get('id'),
+        url = data,
     )
 
     if turbo.can_stream():

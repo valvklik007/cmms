@@ -1,0 +1,21 @@
+{% if id_p == 'schedules' %}
+    <select id="{{ id_p }}" name="{{ id_name }}">
+        {% for m in id_index %}
+            {% if position is defined and position|int == m.id %}
+                 <option value="{{ m.id }}" selected="selected">{{ m.name }}-----{{ m.period }}-{{ m.date_time }}</option>
+                {% else %}
+                    <option value="{{ m.id }}">{{ m.name }}-----{{ m.period }}-{{ m.date_time }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+{% else %}
+    <select id="{{ id_p }}" name="{{ id_name }}">
+        {% for m in id_index %}
+            {% if position is defined and position|int == m.id %}
+                <option value="{{ m.id }}" selected="selected">{{ m.name }}</option>
+            {% else %}
+                 <option value="{{ m.id }}">{{ m.name }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+{% endif %}

@@ -1,0 +1,13 @@
+<form onsubmit="return false" id="schedules_form" action="" method="post">
+    <div class="box_info_body">
+        <span>Период</span>
+        <select name="period" style="margin-right: 30px;" required>
+            <option value="days">День</option>
+            <option value="weeks">Неделя</option>
+            <option value="months">Месяц</option>
+            <option value="years">Год</option>
+        </select>
+        <span>Время периода</span>
+        <input type="number" name="date_time" min="1" max="100" value="1" required>
+    </div>
+</form>

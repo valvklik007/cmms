@@ -1,54 +1,73 @@
 {% extends 'base.html' %}
 {% block content %}
+
+    {% for mess in get_flashed_messages() %}
+        <div id="mess-flash">
+            <h3 style="text-align: center; color: red;">{{ mess }}</h3>
+        </div>
+    {% endfor %}
+
     <div class="window_flag_close">
-        <span>Обслуживание</span>
+        <span>Имя оборудования: {{ item.name }}</span>
         <a href="#" class="flag_close"></a>
     </div>
-
+     {% if maintenance.id is defined %}
+        <form id="add" action="" method="put">
+        {% else %}
+            <form id="add" action="" method="post">
+    {% endif %}
     <div class="main_box_info">
         <div class="titel_box_info">
             <span>Обслуживание</span>
         </div>
-        <div class="box_body_main box_info_body_full_screen_flex">
-            <div class="box_info box_info_body_full_screen_flex">
-                <div class="box_info_body box_info_body_full_screen_flex">
-                    <span>Регламентная работа</span>
-                    <select>
-                        <option>G4</option>
-                        <option>Mode	658</option>
-                        <option>SIPNF 568523</option>
-                    </select>
-                    <button class="add"></button>
-                </div>
-                <div class="box_info_body box_info_body_full_screen_flex">
-                    <span>Вид работы</span>
-                    <input class="input_text" type="text">
-                </div>
+        <form id="add" action="" method="POST">
+            <div class="box_body_main box_info_body_full_screen_flex">
+                <div class="box_info box_info_body_full_screen_flex">
+                    <div class="box_info_body box_info_body_full_screen_flex">
+                        <span>Регламентная работа</span>
+                        {% set id_p = 'regulatorywork' %}
+                        {% set id_index = regulatorywork %}
+                        {% set id_name  = "fk_regulatory_work" %}
+                        {% set position = maintenance.fk_regulatory_work %}
+                        {% include "cmms/include/edit_select.html" %}
+                        <button type="button" class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='regulatorywork') }}')"></button>
+                    </div>
 
-                <div class="box_info_body box_info_body_full_screen_flex">
-                    <span>Тип расписания</span>
-                    <select>
-                        <option>Ежемесячно</option>
-                        <option>Ежегодно</option>
-                        <option>Раз в 3 месяца</option>
-                        <option>Раз в 6 месяцев</option>
-                    </select>
-                    <button class="add"></button>
-                </div>
+                    <div class="box_info_body box_info_body_full_screen_flex">
+                        <span>Вид работы</span>
+                        <input class="input_text" name="name" type="text" value="{{ maintenance.name }}" required>
+                    </div>
 
-                <div class="box_info_body box_info_body_full_screen_flex">
-                    <span>Дата последней работы</span>
-                    <input type="date" name="calendar">
-                </div>
+                    <div class="box_info_body box_info_body_full_screen_flex">
+                        <span>Тип расписания</span>
+                        {% set id_p = 'schedules' %}
+                        {% set id_index = schedules %}
+                        {% set id_name  = "fk_schedule" %}
+                         {% set position = maintenance.fk_schedule %}
+                        {% include "cmms/include/edit_select.html" %}
+                        <button type="button" class="add" onclick="openDialog('{{ url_for('index.add_delete_option' , data='schedules') }}')"></button>
+                    </div>
 
+                    <div class="box_info_body box_info_body_full_screen_flex">
+                        <span>Дата последней работы</span>
+                        <input type="date" value="{{ maintenance.data_time_old }}" name="data_time" required>
+                    </div>
+
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="buttom_menu" style="display: flex; justify-content: flex-end;">
-{#        <button>Удалить</button>#}
-        <button>Сохранить</button>
-        <button>Отмена</button>
-    </div>
+        <div class="buttom_menu" style="display: flex; justify-content: flex-end;">
+            <button type="submit">Сохранить</button>
+            <button type="button" onclick="location.href='{{ url_for('index.maintenance_menu', id=item.id) }}'">Отмена</button>
+        </div>
+    </form>
+
+    <dialog id="dialog_open_option" class="dialog_window">
+        <iframe id="dialogIframe" width="900px" height="510px" style="border: none;"></iframe>
+    </dialog>
+
+    <script src="{{ url_for('static', filename='js/dialog_open_window.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/flash.js') }}" defer></script>
 
 {% endblock %}

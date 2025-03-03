@@ -4,6 +4,11 @@
 {% if item is not defined %}
     {% set activate_click = 'no'  %}
 {% endif %}
+{% for mess in get_flashed_messages() %}
+    <div id="mess-flash">
+        <h3 style="text-align: center; color: red;">{{ mess }}</h3>
+    </div>
+{% endfor %}
 {% include "include/top_menu_item.html" %}
     {% if item %}
         <form id="add" action="" method="PUT" required>
@@ -197,6 +202,7 @@
 
     <script src="{{ url_for('static', filename='js/form.js') }}"></script>
     <script src="{{ url_for('static', filename='js/dialog_open_window.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/flash.js') }}" defer></script>
 
 {#    <script>#}
 {#            document.getElementById('manufactureritme').addEventListener('change', function(event){#}

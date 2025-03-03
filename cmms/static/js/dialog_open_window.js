@@ -3,7 +3,9 @@ function openDialog(url) {
 	let iframe = document.getElementById('dialogIframe');	
 	iframe.src = url;  // Замените на нужный URL
 	if (document.getElementById("dialog_open_option")){
-		lastText = document.getElementById("modelitme").innerText;
+		if(document.getElementById("modelitme")) {
+			lastText = document.getElementById("modelitme").innerText;
+		}
 	}
 	
 	dialog.showModal();

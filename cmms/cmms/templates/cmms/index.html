@@ -9,9 +9,9 @@
     <div class="titel_box_info">
         <span>График обслуживания</span>
     </div>
-    <div class="schedule">
-        <span>Расписание: <input type="date" name="calendar"></span>
-    </div>
+{#    <div class="schedule">#}
+{#        <span>Расписание: <input type="date" name="calendar"></span>#}
+{#    </div>#}
 
     <div class="buttom_menu buttom_menu_top">
         <button>Экспорт</button>
@@ -22,36 +22,31 @@
                 <tr>
                     <th>id</th>
                     <th>Название</th>
-                    <th>Производитель</th>
-                    <th>Модель</th>
-                    <th>Статус</th>
-                    <th>Состояние</th>
-                    <th>Место экспулатации</th>
-                    <th>Дата предстоящего ТО</th>
+                    <th>Вид работы</th>
+                    <th>Статус расписания</th>
+                    <th>Дата последнего выполнения</th>
+                    <th>Следующая дата</th>
+                    <th>Регламентная работа</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <th scope="row"><a href="#">1</a></th>
-                    <td>Название</td>
-                    <td>Sysm</td>
-                    <td>g5</td>
-                    <td>Работает</td>
-                    <td>Исправин</td>
-                    <td>З.И Ленина</td>
-                    <td>25.02.2024</td>
-                </tr>
+                {% for m in maint %}
+                    {% if new_data >= m.data_time %}
+                        <tr style="background: #ff1919" id="tr-maint" data-value="{{ m.id }}">
+                        {% else %}
+                             <tr id="tr-maint" data-value="{{ m.item.id }}" >
+                        {% endif %}
 
-                <tr>
-                    <th scope="row"><a href="#">1</a></th>
-                    <td>Название</td>
-                    <td>Sysm</td>
-                    <td>g5</td>
-                    <td>Работает</td>
-                    <td>Исправин</td>
-                    <td>З.И Ленина</td>
-                    <td>25.02.2024</td>
-                </tr>
+                        <td>{{ m.id }}</td>
+                        <td>{{ m.item.name}}</td>
+                        <td>{{ m.name }}</td>
+                        <td>{{ m.schedules.name }}</td>
+                        <td>{{ m.data_time_old.strftime('%d.%m.%Y')}}</td>
+                        <td>{{ m.data_time.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ m.regulatory_work.name }}</td>
+                    </tr>
+                {% endfor %}
+
             </tbody>
         </table>
     </div>
@@ -80,30 +75,38 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <th scope="row"><a href="#">1</a></th>
-                    <td>Название</td>
-                    <td>Sysm</td>
-                    <td>g5</td>
-                    <td>Работает</td>
-                    <td>Исправин</td>
-                    <td>З.И Ленина</td>
-                </tr>
-
-                <tr>
-                    <th scope="row"><a href="#">1</a></th>
-                    <td>Название</td>
-                    <td>Sysm</td>
-                    <td>g5</td>
-                    <td>Работает</td>
-                    <td>Исправин</td>
-                    <td>З.И Ленина</td>
-                </tr>
+                {% for m in item %}
+                    <tr id="tr_item" data-value="{{ m.id }}">
+                        <th scope="row">{{ m.id }}</th>
+                        <td>{{ m.name }}</td>
+                        <td>{{ m.model_item.parent.name }}</td>
+                        <td>{{ m.model_item.name }}</td>
+                        <td>{{ m.model_StatusItme.name }}</td>
+                        <td>{{ m.model_ConditionItme.name }}</td>
+                        <td>{{ m.model_PlaceOperation.name }}</td>
+                    </tr>
+                {% endfor %}
 
 
             </tbody>
         </table>
     </div>
 </div>
-</div>
+
+    <script>
+        document.querySelectorAll('#tr-maint').forEach((tre) =>{
+            tre.addEventListener('click', (e) => {
+                location.href=`/maintenance-menu/${tre.getAttribute('data-value')}`
+            })
+        } )
+
+        document.querySelectorAll('#tr_item').forEach((tr) =>{
+            tr.addEventListener('click', (e)=>{
+                location.href=`/itme/${tr.getAttribute('data-value')}`
+                {#document.querySelector(`input[value="${tr.getAttribute("data-value")}"]`).checked = true;#}
+            })
+        })
+    </script>
+
+
 {% endblock %}
