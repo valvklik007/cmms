@@ -3,6 +3,7 @@ from openpyxl import Workbook
 
 d = datetime.today().strftime('%Y-%m-%d')
 print(d)
+print(d)
 
 # wb = Workbook()
 # ws = wb.active
