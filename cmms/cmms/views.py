@@ -1,21 +1,21 @@
-import re, os
+import re, os, random
 import string
+from dataclasses import dataclass
 from datetime import timedelta
-from fileinput import filename
-from idlelib.rpc import request_queue
-import random
-from lib2to3.fixes.fix_input import context
 from re import template
-from flask import request, render_template, url_for, session, redirect, flash
-import datetime, time
+from flask import request, render_template, url_for, session, redirect, flash, Response
+import datetime
 from dateutil.relativedelta import relativedelta
-from mypy.nodes import set_flags
-from sqlalchemy.dialects.postgresql import psycopg_async
+
 from sqlalchemy.inspection import inspect
 from sqlalchemy import ForeignKey, and_, or_
-from sqlalchemy.orm import joinedload
 
-from werkzeug.utils import secure_filename
+from io import BytesIO
+from urllib.parse import quote
+
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Alignment
 
 from app import db, turbo, app
 import inspect
@@ -129,8 +129,9 @@ class ConditionItme(BaseRepository):
 
 
 class TypeEquipment(BaseRepository):
+    model = models.TypeEquipment
     def __init__(self):
-        super().__init__(models.TypeEquipment)
+        super().__init__(self.model)
 
 
 class PlaceOperation(BaseRepository):
@@ -200,6 +201,124 @@ def context_template_item():
     return tem_context
 
 
+"""Создания таблицы excel"""
+def form_table(q, req):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Schedule"
+
+    # Заголовки
+    headers = ["Имя станка", "Тип станка", "Регламент работ" , "Наименования обслуживания" , "Частота ТО"]
+
+    start_date = datetime.datetime.strptime(req.values.get('data_form'), '%Y-%m-%d')
+    end_date = datetime.datetime.strptime(req.values.get('data_to'), '%Y-%m-%d')
+
+    date_headers = [(start_date + timedelta(days=i)).strftime("%d-%b") for i in range((end_date - start_date).days + 1)]
+    ws.append(headers)
+
+    # Записываем заголовки дат по вертикали в столбец D (длина заголовка, плюс один)
+    for i, date in enumerate(date_headers, start=len(headers)+1):
+        cell = ws.cell(row=1, column=i, value=date)
+        cell.alignment = Alignment(textRotation=90)
+
+
+    max_lengths = {i: len(str(header)) for i, header in enumerate(headers, start=1)}
+
+    #Фиксируем столбец для scrolling
+    column_letter = get_column_letter(len(headers)+1)
+    ws.freeze_panes = f"{column_letter}2"
+
+    # Заполняем строки
+    for record in q.all():
+        row = [
+            record.item.name,
+            record.item.model_TypeEquipment.name,
+            record.regulatory_work.name,
+            record.name,
+            record.schedules.name,
+        ]
+
+        #Ищем длину текста, что бы присвоить значения столбца
+        for i, header in enumerate(row, start=1):
+            if len(header) > max_lengths[i]:
+                max_lengths[i] = len(header)
+                print(max_lengths)
+
+
+        # Генерируем пустые ячейки для дат
+        date_cells = [""] * len(date_headers)
+
+        # Логика установки "X" по частоте обслуживания
+        task_start = record.data_time.strftime("%d-%b")
+
+        for i, date_str in enumerate(date_headers):
+            if task_start == date_str:
+                date_cells[i] = "X"
+            # else:
+            #     date_cells[i] = "-"
+
+        row.extend(date_cells)
+        ws.append(row)
+
+
+    # Автоматически настраиваем ширину столбцов
+    for col_idx, max_length in max_lengths.items():
+        column_letter = get_column_letter(col_idx)
+        ws.column_dimensions[column_letter].width = max_length + 3
+
+    # Автоматически настраиваем ширину столбцов для дат
+    for i, len_head in enumerate(range(len(date_headers)), start=len(headers)+1):
+        column_letter = get_column_letter(i)
+        ws.column_dimensions[column_letter].width = 3
+
+    # Сохраняем файл
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    return buffer
+    # wb.save("maintenance_schedule.xlsx")
+    # print("Файл сохранен: maintenance_schedule.xlsx")
+
+
+
+"""Экспорт в файл по выбранным значениям"""
+def export():
+    context = dict(
+        typeequipment = TypeEquipment().get_all(),
+    )
+    if request.values.get('id'):
+        q = Item.model.query.filter(
+            Item.model.fk_TypeEquipment.in_(request.values.getlist('id'))
+        ).all()
+        context.update(
+            item = q,
+        )
+    if request.values.get('item'):
+        print(request.values.get('item'))
+        q = Maintenance.model.query.filter(
+            Maintenance.model.fk_item.in_(request.values.getlist('item')),
+            Maintenance.model.data_time.between(request.values.get('data_form'), request.values.get('data_to'))
+        ).order_by( Maintenance.model.fk_item.asc() )
+
+        buffer = form_table(q=q,req=request)
+
+        #Кодируем кириллицу, кодировка RFC 5987
+        filename = quote(f"Отчет от {request.values.get('data_form')}-{request.values.get('data_to')}.xlsx")
+
+        # Отправляем файл пользователю
+        return Response(
+            buffer,
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={
+                "Content-Disposition": f"attachment; filename*=UTF-8''{filename}",
+                "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            }
+        )
+
+    # "Content-Disposition": "attachment; filename=Отчет от {}-{}.xlsx".format(request.values.get('data_form'), request.values.get('data_to')),
+    return render_template('/cmms/export.html', **context)
+
 """Главная страница"""
 def index():
     context = dict(
@@ -210,7 +329,7 @@ def index():
             Maintenance.model.check_work.asc(),
             Maintenance.model.data_time.asc(),
         ).all(),
-        new_data=datetime.datetime.now().date() + timedelta(days=2),
+        new_data=datetime.datetime.now().date() + timedelta(days=7),
     )
 
     return render_template('/cmms/index.html', **context)
@@ -285,10 +404,26 @@ def maintenance_menu(id):
         return redirect(url_for('index.maintenance_menu', id=id), 303)
 
     if request.values.get('work') is not None:
-        # check_work
-        print(request.values.get('work'))
+        # переводим статус в выполнено check_work
         i = Maintenance().get_filter(id=request.values.get('work'))
+
+        #Если выполнили раньше, делаем update даты, что бы выполнено не было в будущем
+        if datetime.datetime.now().date() < i.first().data_time:
+            Maintenance().update(i, data_time=datetime.datetime.now().date())
+
         Maintenance().update(i, check_work=True)
+
+        delta = deltatime(i.first().schedules.period, +i.first().schedules.date_time)
+        con = dict(
+            name= i.first().name,
+            data_time = datetime.datetime.now().date() + delta,
+            data_time_old = i.first().data_time,
+            fk_schedule = i.first().fk_schedule,
+            fk_regulatory_work = i.first().fk_regulatory_work,
+            fk_item = i.first().fk_item,
+        )
+        Maintenance().add(**con)
+
         return redirect(url_for('index.maintenance_menu', id=id), 303)
 
     if item is not None:
@@ -299,7 +434,7 @@ def maintenance_menu(id):
                 Maintenance.model.check_work.asc(),
                 Maintenance.model.data_time.asc(),
             ),
-            new_data =  datetime.datetime.now().date() + timedelta(days=2),
+            new_data =  datetime.datetime.now().date() + timedelta(days=7),
             item=item,
         )
     else:
@@ -316,6 +451,7 @@ def deltatime(i, number):
         'years': relativedelta(years=number),
     }
     return deltatime[i]
+
 
 """Обслуживание"""
 def maintenance(id, id_maintenance):

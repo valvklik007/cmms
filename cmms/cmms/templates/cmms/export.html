@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="window_flag_close">
+        <span>Экспорт</span>
+        <a href="#" onclick="handleClose()" class="flag_close"></a>
+    </div>
+
+    <div class="main_box_info">
+        <div class="titel_box_info">
+            <span>Варианты</span>
+        </div>
+        <form action="" method="get" data-turbo="false">
+            <div class="box_body_main box_info_body_full_screen_flex">
+                <div class="box_info box_info_body_full_screen_flex">
+                    <div class="box_info_body box_info_body_full_screen_flex">
+                        <span>Тип оборудования</span>
+                        <div class="custom-select">
+                            <div>
+                                <select class="selected-options">
+                                    <option>Выберите опции</option>
+                                </select>
+                                <div class="overSelect"></div>
+                            </div>
+                            <div class="dropdown-content">
+                                {% for m in typeequipment %}
+                                    <label>
+                                        <input type="checkbox" name="id" value="{{ m.id }}" id="typeequipment"> {{m.name}}
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="buttom_menu" style="margin: 0; margin-left: 5px;">
+                            <button type="submit" style="width: 100px;  height: 26px; padding: 0;">Выбрать</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+            <form id='export' action="" method="get" data-turbo="false">
+                <div class="box_body_main box_info_body_full_screen_flex">
+                    <div class="box_info box_info_body_full_screen_flex">
+                        <div class="box_info_body box_info_body_full_screen_flex">
+                            <span>Имя оборудования</span>
+                            <div class="custom-select">
+                                <div>
+                                    <select class="selected-options">
+                                        <option>Выберите опции</option>
+                                    </select>
+                                    <div class="overSelect"></div>
+                                </div>
+                                <div class="dropdown-content">
+                                    {% for m in item %}
+                                        <label>
+                                            <input type="checkbox" name="item" value="{{ m.id }}"> {{m.name}}
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="box_body_main box_info_body_full_screen_flex">
+                    <div class="box_info box_info_body_full_screen_flex">
+                        <div class="box_info_body box_info_body_full_screen_flex">
+                            <span>Дата</span>
+                            <div>
+                                <div>
+                                    <span>От</span>
+                                    <input type="date" value="" name="data_form" required>
+                                </div>
+                                <div style="margin-top: 20px">
+                                    <span>До</span>
+                                    <input type="date" value="" name="data_to" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+    </div>
+
+    <div class="buttom_menu" style="display: flex; justify-content: flex-end;">
+        <button type="submit" form="export">Экспорт</button>
+    </div>
+
+
+
+	<script>
+
+        function handleClose() {
+            try {
+                parent.closeDialog();
+            } catch (error) {
+                window.close();
+            }
+        }
+
+        url = new URL(window.location.href).searchParams.getAll("id");
+        document.querySelectorAll('#typeequipment').forEach((input) =>{
+            if (url.includes(input.value)) {
+                input.checked = true;
+            }
+        })
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const dropdownContent = document.querySelectorAll('.custom-select');
+        dropdownContent.forEach((drop, index) => {
+            drop.addEventListener('click', () => {
+                const dropdownContent = document.querySelectorAll('.dropdown-content')[index];
+                dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+            });
+        });
+
+        window.onclick = function(event) {
+            if (!event.target.closest('.custom-select')) {
+                const dropdowns = document.querySelectorAll('.dropdown-content');
+                dropdowns.forEach(dropdown => {
+                    if (dropdown.style.display === 'block') {
+                        dropdown.style.display = 'none';
+                    }
+                });
+            }
+        };
+    });
+	</script>
+
+{% endblock %}

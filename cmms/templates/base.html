@@ -6,7 +6,7 @@
 	<title>CMMS</title>
 {#    {{ turbo() }}#}
     <script src="{{ url_for('static', filename='js/turbo.es2017-umd.js') }}"></script>
-    <script>Turbo.connectStreamSource(new WebSocket(`ws${location.protocol.substring(4)}//${location.host}/turbo-stream`));</script>
+    <script>Turbo.connectStreamSource(new WebSocket(`ws${location.protocol.substring(4)}//{{ request.host }}/turbo-stream`));</script>
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>

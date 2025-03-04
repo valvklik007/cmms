@@ -5,6 +5,7 @@
     <!-- <span>Главная страница</span> -->
     <!-- <span>Расписание: <input type="date" name="calendar"></span> -->
 </div>
+
 <div class="main_box_info">
     <div class="titel_box_info">
         <span>График обслуживания</span>
@@ -14,7 +15,7 @@
 {#    </div>#}
 
     <div class="buttom_menu buttom_menu_top">
-        <button>Экспорт</button>
+        <button onclick="openDialog('{{ url_for('index.export') }}')">Экспорт</button>
     </div>
     <div class="table_box">
         <table>
@@ -32,7 +33,7 @@
             <tbody>
                 {% for m in maint %}
                     {% if new_data >= m.data_time %}
-                        <tr style="background: #ff1919" id="tr-maint" data-value="{{ m.id }}">
+                        <tr style="background: #ff1919" id="tr-maint" data-value="{{ m.item.id }}">
                         {% else %}
                              <tr id="tr-maint" data-value="{{ m.item.id }}" >
                         {% endif %}
@@ -79,8 +80,8 @@
                     <tr id="tr_item" data-value="{{ m.id }}">
                         <th scope="row">{{ m.id }}</th>
                         <td>{{ m.name }}</td>
-                        <td>{{ m.model_item.parent.name }}</td>
-                        <td>{{ m.model_item.name }}</td>
+                        <td>{{ m.model_item.parent.name if m.model_item is not none else "NULL"  }}</td>
+                        <td>{{ m.model_item.name | default('NULL') }}</td>
                         <td>{{ m.model_StatusItme.name }}</td>
                         <td>{{ m.model_ConditionItme.name }}</td>
                         <td>{{ m.model_PlaceOperation.name }}</td>
@@ -92,6 +93,12 @@
         </table>
     </div>
 </div>
+
+    <dialog id="dialog_open_option" class="dialog_window">
+    <iframe id="dialogIframe" width="560px" height="500px" style="border: none;"></iframe>
+    </dialog>
+
+    <script src="{{ url_for('static', filename='js/dialog_open_window.js') }}" defer></script>
 
     <script>
         document.querySelectorAll('#tr-maint').forEach((tre) =>{

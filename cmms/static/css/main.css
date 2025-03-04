@@ -432,3 +432,46 @@ tbody tr:hover{
 	transform: rotateZ(90deg);
 	top: 47.8%;
 }
+
+.custom-select{
+	position: relative;
+}
+
+.selected-options {
+	border: 1px solid #ccc;
+	padding: 4px;
+	cursor: pointer;
+	background-color: #f9f9f9;
+	border-radius: 3px;
+	width: 200px !important;
+}
+
+.overSelect {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+
+.dropdown-content {
+	display: none;
+	position: absolute;
+	border: 1px solid #ccc;
+	background-color: #fff;
+	width: 99%;
+	height: 250px;
+	overflow: overlay;
+	z-index: 2;
+}
+
+.dropdown-content label {
+	display: block;
+	padding: 10px;
+	cursor: pointer;
+}
+
+.dropdown-content label:hover {
+	background-color: #f1f1f1;
+}
