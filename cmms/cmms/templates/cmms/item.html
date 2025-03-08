@@ -186,6 +186,26 @@
                 </div>
             </div>
         </div>
+        <div class="main_box_info">
+                <div class="titel_box_info">
+                    <span>Дополнительные сведенья</span>
+                </div>
+                <div class="box_info box_info_in_line">
+                    <div class="box_info_body">
+                        <span>Серийный номер</span>
+                         <input type="text" name="serial_num" value="{{ item.serial_num if item }}" required>
+                    </div>
+                    <div class="box_info_body">
+                        <span>Дата производства</span>
+                         <input type="date" name="date_product" value="{{ item.date_product if item }}" required>
+                    </div>
+                    <div class="box_info_body">
+                        <span>Гарантия по</span>
+                         <input type="date" name="warranty" value="{{ item.warranty if item }}" required>
+                    </div>
+
+                </div>
+            </div>
         <div class="buttom_menu" style="display: flex; justify-content: flex-end;">
             {% if item %}
                 <button type="submit" class="delete_but" onclick="return delete_item();" formnovalidate>Удалить</button>

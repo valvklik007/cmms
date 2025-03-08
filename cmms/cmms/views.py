@@ -340,8 +340,9 @@ def add_item():
     tem_context = context_template_item()
     if request.method == 'POST':
         rq = req_litter(request)
-        exploitation_date = datetime.datetime.strptime(rq['exploitation'], '%Y-%m-%d').date()
-        rq['exploitation'] = exploitation_date
+        rq['exploitation'] = datetime.datetime.strptime(rq['exploitation'], '%Y-%m-%d').date()
+        rq['warranty'] = datetime.datetime.strptime(rq['warranty'], '%Y-%m-%d').date()
+        rq['date_product'] = datetime.datetime.strptime(rq['date_product'], '%Y-%m-%d').date()
         id_add = Item().add(**rq)
         if id_add:
             flash('Успешно добавили', 'info')
@@ -363,8 +364,10 @@ def render_item_and_update_and_delete(id):
             return render_template('/cmms/item.html', **tem_context)
         if request.method == 'PUT':
             rq = req_litter(request)
-            exploitation_date = datetime.datetime.strptime(rq['exploitation'], '%Y-%m-%d').date()
-            rq['exploitation'] = exploitation_date
+
+            rq['exploitation'] = datetime.datetime.strptime(rq['exploitation'], '%Y-%m-%d').date()
+            rq['warranty'] = datetime.datetime.strptime(rq['warranty'], '%Y-%m-%d').date()
+            rq['date_product'] = datetime.datetime.strptime(rq['date_product'], '%Y-%m-%d').date()
             item = Item().get_filter(id=id)
             Item().update(item, **rq)
             flash('Успешно обновлены данные', 'info')

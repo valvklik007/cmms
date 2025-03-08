@@ -155,6 +155,10 @@ class Item(db.Model):
     weight = db.Column(db.Float, default=None)
     price = db.Column(db.Float, default=None)
     exploitation = db.Column(db.Date, default=datetime.today)
+    serial_num = db.Column(db.String(150), default=None)
+    warranty = db.Column(db.Date, default=datetime.today)
+    date_product = db.Column(db.Date, default=datetime.today)
+
     fk_ModelItme = db.Column(db.Integer, db.ForeignKey('modelitme.id', ondelete='SET NULL'), nullable=True)
     fk_StatusItme = db.Column(db.Integer, db.ForeignKey('statusitme.id', ondelete='SET NULL'), nullable=True)
     fk_ConditionItme = db.Column(db.Integer, db.ForeignKey('conditionitme.id', ondelete='SET NULL'), nullable=True)
